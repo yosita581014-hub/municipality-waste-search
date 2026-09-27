@@ -1841,7 +1841,7 @@ const columns=['prefecture','municipality','population','population_year','age_0
 function fmt(v,unit){if(!v||!v.trim())return '未登録';const n=Number(v.replaceAll(',',''));return Number.isFinite(n)&&n>=0?new Intl.NumberFormat('ja-JP',{maximumFractionDigits:0}).format(n)+unit:'データ要確認'}
 function norm(v){return (v||'').replace(/\s/g,'').replaceAll('ヶ','ケ').replaceAll('ヵ','カ')}
 function label(v){return v?'（'+v+'）':''}
-function find(q){const n=norm(q);if(!n)return [];if(n==='東京'||n==='東京都'||n==='東京23区'||n==='東京都23区')return [{prefecture:'東京都',municipality:'東京23区',municipality_code:'tokyo23',joint_group:true}];if(n==='大阪')return rows.filter(r=>r.municipality_code==='27100');const exact=rows.filter(r=>norm(r.municipality)===n||norm(r.prefecture+r.municipality)===n);return exact.length?exact:rows.filter(r=>norm(r.prefecture+r.municipality).includes(n))}
+function find(q){const n=norm(q);if(!n)return [];if(n==='東京23区'||n==='東京都23区')return [{prefecture:'東京都',municipality:'東京23区',municipality_code:'tokyo23',joint_group:true}];if(n==='東京'||n==='東京都')return [{prefecture:'東京都',municipality:'東京23区',municipality_code:'tokyo23',joint_group:true},...rows.filter(r=>r.prefecture==='東京都')];if(n==='大阪')return rows.filter(r=>r.municipality_code==='27100');const prefectureMatches=rows.filter(r=>norm(r.prefecture)===n);if(prefectureMatches.length)return prefectureMatches;const exact=rows.filter(r=>norm(r.municipality)===n||norm(r.prefecture+r.municipality)===n);return exact.length?exact:rows.filter(r=>norm(r.prefecture+r.municipality).includes(n))}
 function renderMunicipality(q){
  if(!rows.length)return '自治体データは未登録です。確認済みのCSVを読み込んでください。';
  if(!q)return '自治体名を入力してください。';
