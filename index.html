@@ -1849,6 +1849,12 @@ function fmt(v,unit){if(!v||!v.trim())return '未登録';const n=Number(v.replac
 function norm(v){return (v||'').replace(/\s/g,'').replaceAll('ヶ','ケ').replaceAll('ヵ','カ')}
 function label(v){return v?'（'+v+'）':''}
 function find(q){const n=norm(q);if(!n)return [];if(n==='東京23区'||n==='東京都23区')return [{prefecture:'東京都',municipality:'東京23区',municipality_code:'tokyo23',joint_group:true}];if(n==='東京'||n==='東京都')return [{prefecture:'東京都',municipality:'東京23区',municipality_code:'tokyo23',joint_group:true},...rows.filter(r=>r.prefecture==='東京都')];if(n==='大阪')return rows.filter(r=>r.municipality_code==='27100');const prefectureMatches=rows.filter(r=>norm(r.prefecture)===n);if(prefectureMatches.length)return prefectureMatches;const exact=rows.filter(r=>norm(r.municipality)===n||norm(r.prefecture+r.municipality)===n);return exact.length?exact:rows.filter(r=>norm(r.prefecture+r.municipality).includes(n))}
+function cityFacilities(city){
+ const linked=serviceLinks.filter(x=>x.municipality_code===city.municipality_code).map(x=>facilities.find(f=>f.id===x.facility_id)).filter(Boolean);
+ const owned=facilityOwnerLinks2024.filter(x=>x.municipality_code===city.municipality_code).map(x=>facilities.find(f=>f.id===x.facility_id)).filter(f=>f&&!linked.some(y=>y.id===f.id));
+ const located=facilities.filter(f=>f.address&&f.address.startsWith(city.prefecture+city.municipality)&&!linked.some(y=>y.id===f.id)&&!owned.some(y=>y.id===f.id));
+ return {linked,owned,located};
+}
 function renderMunicipality(q){
  if(!rows.length)return '自治体データは未登録です。確認済みのCSVを読み込んでください。';
  if(!q)return '自治体名を入力してください。';
@@ -1876,7 +1882,8 @@ function renderMunicipality(q){
  if(Array.isArray(r.waste_trend)&&r.waste_trend.length){out.push('','【過去5年の総排出量】');for(const [year,tonnes] of r.waste_trend)out.push(year+'年度：'+fmt(String(tonnes),'t/年'))}
  else out.push('過去5年の総排出量：未登録');
  const linked=serviceLinks.filter(x=>x.municipality_code===r.municipality_code).map(x=>facilities.find(f=>f.id===x.facility_id)).filter(Boolean); out.push('','【処理先の焼却施設】',linked.length?linked.map(f=>f.name+'（下の選択欄から詳細を見る）').join('、'):'対応関係：未確認');if(r.municipality_code==='27100')out.push('注：組合の共同処理施設一覧です。大阪市から各施設への実際の搬入先は未確認です。');
- const owned=facilityOwnerLinks2024.filter(x=>x.municipality_code===r.municipality_code).map(x=>facilities.find(f=>f.id===x.facility_id)).filter(f=>f&&!linked.some(y=>y.id===f.id));if(owned.length)out.push('','【自治体が設置する施設】',owned.map(f=>f.name+'（下の選択欄から詳細を見る）').join('、'),'設置主体を自治体コードで確認。実際の搬入先は未確認。');
+  const {owned,located}=cityFacilities(r);if(owned.length)out.push('','【自治体が設置する施設】',owned.map(f=>f.name+'（施設名をタップして詳細を見る）').join('、'),'設置主体を自治体コードで確認。実際の搬入先は未確認。');
+  if(located.length)out.push('','【市町村内に所在する施設】',located.map(f=>f.name+'（施設名をタップして詳細を見る）').join('、'),'所在地の一致のみ。設置主体や実際の搬入先は未確認。');
  out.push('','【出典】',(r.households?'人口・世帯数':'人口')+'：'+(r.population_source||'未登録'),'年齢分布：'+(r.age_source||'未登録'));
  if(r.waste_extra_source)out.push('参考の搬入量・処理量：'+r.waste_extra_source);
  if(r.waste_tonnes)out.push('ごみ排出・処理：'+(r.waste_source||'未登録'));
@@ -1897,15 +1904,14 @@ function showResult(content){
  }
 }
  function addFacilityLinks(city){
-  const linked=serviceLinks.filter(x=>x.municipality_code===city.municipality_code).map(x=>facilities.find(f=>f.id===x.facility_id)).filter(Boolean);
-  const owned=facilityOwnerLinks2024.filter(x=>x.municipality_code===city.municipality_code).map(x=>facilities.find(f=>f.id===x.facility_id)).filter(f=>f&&!linked.some(y=>y.id===f.id));
+  const {linked,owned,located}=cityFacilities(city);
   const groups=[...document.querySelectorAll('#result .group')];
-  for(const [heading,list] of [['処理先の焼却施設',linked],['自治体が設置する施設',owned]]){
+  for(const [heading,list] of [['処理先の焼却施設',linked],['自治体が設置する施設',owned],['市町村内に所在する施設',located]]){
    const group=groups.find(g=>g.querySelector('h2')?.textContent.includes(heading));
    if(!group||!list.length)continue;
    const body=group.querySelector('.rows');body.replaceChildren();
    for(const facility of list){const button=document.createElement('button');button.type='button';button.className='facility-link';button.textContent=facility.name+'　↗';button.setAttribute('aria-label',facility.name+'の施設情報を見る');button.addEventListener('click',()=>{searchAndShow(city.prefecture+city.municipality,facility.id,city.municipality_code);document.getElementById('result').scrollIntoView({behavior:'smooth',block:'start'})});body.appendChild(button)}
-   if(heading==='自治体が設置する施設'){const note=document.createElement('small');note.textContent='設置主体を自治体コードで確認。実際の搬入先は未確認。';body.appendChild(note)}
+   if(heading!=='処理先の焼却施設'){const note=document.createElement('small');note.textContent=heading==='自治体が設置する施設'?'設置主体を自治体コードで確認。実際の搬入先は未確認。':'所在地の一致のみ。設置主体や実際の搬入先は未確認。';body.appendChild(note)}
   }
  }
  function searchAndShow(q,selectedFacilityId='',selectedMunicipalityCode=''){
@@ -1932,12 +1938,12 @@ function showResult(content){
  const feedback=document.getElementById('search-feedback');
  feedback.textContent=selected?'検索結果：'+selected.name:m.length===1&&!fs.length?'検索結果：'+(m[0].joint_group?'東京23区（共同処理）':m[0].prefecture+m[0].municipality):fs.length===1&&!m.length?'検索結果：'+fs[0].name:m.length||fs.length?'候補'+(m.length+fs.length)+'件を下に表示しています。タップして選んでください。':'該当する登録データはありません。';
  if(m.length===1&&(!fs.length||chosenCity)){
-  const linked=serviceLinks.filter(x=>x.municipality_code===m[0].municipality_code).map(x=>facilities.find(f=>f.id===x.facility_id)).filter(Boolean);const managed=facilityOwnerLinks2024.filter(x=>x.municipality_code===m[0].municipality_code).map(x=>facilities.find(f=>f.id===x.facility_id)).filter(f=>f&&!linked.some(y=>y.id===f.id));
-  if(linked.length||managed.length){
+   const {linked,owned:managed,located}=cityFacilities(m[0]);
+   if(linked.length||managed.length||located.length){
    const title=document.createElement('label');title.htmlFor='facility-picker';title.textContent='処理施設を選択';
    const picker=document.createElement('select');picker.id='facility-picker';
    const home=document.createElement('option');home.value='';home.textContent=m[0].municipality+'の情報を見る';picker.appendChild(home);
-   for(const f of linked){const option=document.createElement('option');option.value=f.id;option.textContent=f.name;picker.appendChild(option)}for(const f of managed){const option=document.createElement('option');option.value=f.id;option.textContent=f.name+'（設置施設・搬入先未確認）';picker.appendChild(option)}
+    for(const f of linked){const option=document.createElement('option');option.value=f.id;option.textContent=f.name;picker.appendChild(option)}for(const f of managed){const option=document.createElement('option');option.value=f.id;option.textContent=f.name+'（設置施設・搬入先未確認）';picker.appendChild(option)}for(const f of located){const option=document.createElement('option');option.value=f.id;option.textContent=f.name+'（市町村内・搬入先未確認）';picker.appendChild(option)}
    picker.value=selectedFacilityId;
    picker.addEventListener('change',()=>searchAndShow(m[0].prefecture+m[0].municipality,picker.value,m[0].municipality_code));
    choice.appendChild(title);choice.appendChild(picker)
