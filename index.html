@@ -1,5 +1,5 @@
 <!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>安全法令ナビ v15</title>
+<title>安全法令ナビ v17</title>
 <style>
 :root{--navy:#0c304e;--blue:#125b78;--cyan:#26829e;--bg:#f2f6f9;--text:#182530;--muted:#6d7c88;--line:#dde6ec;--green:#2f7c55;--amber:#9c6b1b;--red:#a84444}
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Yu Gothic",Meiryo,sans-serif}
@@ -361,10 +361,27 @@ main{max-width:1240px;margin:-28px auto 55px;padding:0 13px}.searchbox{backgroun
 .lawtop .original{border:2px solid #bfd4de;background:#fbfdfe}
 .lawtop .originalname{font-size:16px;font-weight:900}
 .lawtop .originaltext{font-size:14px;line-height:1.9}
+
+.hiernote{font-size:11px;color:var(--muted);margin-top:8px;line-height:1.5}
+
+.legaltype{background:#eef3f7;color:#435563}
+.hierex{font-size:12px;color:var(--muted)}
+@media(max-width:700px){
+  .toolbar{grid-template-columns:minmax(0,1fr)!important}
+  .toolbar select{width:100%}
+}
 </style></head><body>
 <header><div class="wrap"><div class="head"><div><h1>安全法令ナビ</h1><div class="sub">現場で使える。現場ワードから法令・数値・資格・届出・物質・現場ルールへ逆引き。</div></div><div class="actions"><button class="ghost" onclick="showAll()">全件表示</button><button class="ghost" onclick="window.print()">印刷</button></div></div><div class="stats"><span class="stat" id="topicStat"></span><span class="stat" id="lawStat"></span><span class="stat" id="kwStat"></span><span class="stat">公式一次資料リンク付き</span></div></div></header>
 <main><section class="searchbox"><div class="label">現場で見たもの・作業・設備・物質・資格・届出名を入力</div><div class="row"><input id="q" placeholder="例：足場、塗料、玉掛け、タンク、LOTO、石綿、熱中症"><button class="primary" id="go">検索</button></div><div class="quick" id="quick"></div><div class="tip">検索入口は現場語。具体的な高さ・幅・荷重・濃度・期限は結果側に表示します。</div><div class="tabs"><button class="tab active" data-mode="all">すべて</button><button class="tab" data-mode="official">公式確認済み中心</button><button class="tab" data-mode="numbers">数値・期限あり</button><button class="tab" data-mode="beginner">新人向け解説あり</button></div></section>
-<div class="layout"><aside class="side"><div class="sidetitle">カテゴリ</div><div id="sideCats"></div></aside><section class="content"><div class="toolbar"><div><span class="titleh">検索結果</span><span class="cnt" id="count"></span></div><select id="lawFilter"><option value="">すべての法令・規則</option></select></div><div id="results" class="grid"></div></section></div><div class="footer">未確認項目は断定せず「精査中」と表示。条文番号・主要条文・規制値は公式法令本文と照合し、e-Gov法令検索へ直接確認できる構成です。</div></main>
+<div class="layout"><aside class="side"><div class="sidetitle">カテゴリ</div><div id="sideCats"></div></aside><section class="content"><div class="toolbar"><div><span class="titleh">検索結果</span><span class="cnt" id="count"></span></div><select id="typeFilter">
+<option value="">すべての区分</option>
+<option value="法律">法律</option>
+<option value="政令">政令</option>
+<option value="省令・規則">省令・規則</option>
+<option value="告示・通達・指針">告示・通達・指針</option>
+<option value="条例">条例</option>
+<option value="現場ルール">現場ルール</option>
+</select><select id="lawFilter"><option value="">すべての法律・政令・規則・条例・ルール</option></select></div><div id="results" class="grid"></div></section></div><div class="footer">法律・政令・省令/規則・告示/通達/指針・条例・現場ルールを区分して検索できます。条例は自治体ごとに異なるため、対象地域を特定して適用条例を確認します。</div></main>
 <div class="drawerbg" id="bg"></div><aside class="drawer" id="drawer"><div class="dhead"><div class="dtitle" id="dt"></div><button class="close" id="close">×</button></div><div class="dbody" id="db"></div></aside>
 <script>
 
@@ -388,9 +405,36 @@ const quick=document.getElementById("quick");QUICK.forEach(k=>{const b=document.
 const cats=[...new Set(DATA.map(x=>x.cat))].sort(),sc=document.getElementById("sideCats");
 function drawCats(){sc.innerHTML="";const a=document.createElement("button");a.className="sidebtn"+(!currentCat?" active":"");a.innerHTML=`<span>すべて</span><span class="n">${DATA.length}</span>`;a.onclick=()=>{currentCat="";drawCats();render()};sc.appendChild(a);cats.forEach(c=>{const n=DATA.filter(x=>x.cat===c).length,b=document.createElement("button");b.className="sidebtn"+(currentCat===c?" active":"");b.innerHTML=`<span>${c}</span><span class="n">${n}</span>`;b.onclick=()=>{currentCat=c;drawCats();render()};sc.appendChild(b)})}
 function passesMode(x){if(mode==="official")return x.status.includes("公式");if(mode==="numbers")return x.facts.length>0;if(mode==="beginner")return !!x.beginner;return true}
-function filtered(){const t=norm(q.value),law=lawFilter.value;return DATA.filter(x=>(!currentCat||x.cat===currentCat)&&(!law||x.law===law)&&passesMode(x)&&(!t||[x.title,x.law,x.cat,x.desc,...x.kw,...x.facts,...x.articles,...x.first].some(v=>norm(v).includes(t))))}
+function filtered(){const t=norm(q.value),law=lawFilter.value,type=typeFilter.value;return DATA.filter(x=>(!currentCat||x.cat===currentCat)&&(!type||legalType(x)===type)&&(!law||x.law===law)&&passesMode(x)&&(!t||[x.title,x.law,x.cat,legalType(x),x.desc,...x.kw,...x.facts,...x.articles,...x.first].some(v=>norm(v).includes(t))))}
+
+const LEGAL_TYPE_MAP={
+  "労働安全衛生法":"法律",
+  "消防法":"法律",
+  "廃棄物の処理及び清掃に関する法律":"法律",
+  "高圧ガス保安法":"法律",
+  "労働安全衛生法施行令":"政令",
+  "労働安全衛生規則":"省令・規則",
+  "クレーン等安全規則":"省令・規則",
+  "酸素欠乏症等防止規則":"省令・規則",
+  "有機溶剤中毒予防規則":"省令・規則",
+  "特定化学物質障害予防規則":"省令・規則",
+  "石綿障害予防規則":"省令・規則",
+  "粉じん障害防止規則":"省令・規則",
+  "ボイラー及び圧力容器安全規則":"省令・規則"
+};
+function legalType(x){
+  if(x.legalType)return x.legalType;
+  if(LEGAL_TYPE_MAP[x.law])return LEGAL_TYPE_MAP[x.law];
+  if(/条例/.test(x.law||""))return "条例";
+  if(/告示|通達|指針|ガイドライン/.test(x.law||""))return "告示・通達・指針";
+  if(/社内|現場|構内|ルール/.test(x.law||""))return "現場ルール";
+  if(/規則/.test(x.law||""))return "省令・規則";
+  if(/施行令|政令/.test(x.law||""))return "政令";
+  if(/法$/.test(x.law||""))return "法律";
+  return "その他";
+}
 function statusClass(s){return s.includes("公式")?"st-ok":"st-mid"}
-function render(){const d=filtered();count.textContent=`${d.length}件`;res.innerHTML="";if(!d.length){res.innerHTML='<div class="empty">該当候補がありません。別の現場ワードでも検索してください。</div>';return}d.forEach(x=>{const c=document.createElement("article");c.className="card";c.innerHTML=`<div class="badges"><span class="badge">${x.cat}</span><span class="badge ${statusClass(x.status)}">${x.status}</span></div>
+function render(){const d=filtered();count.textContent=`${d.length}件`;res.innerHTML="";if(!d.length){res.innerHTML='<div class="empty">該当候補がありません。別の現場ワードでも検索してください。</div>';return}d.forEach(x=>{const c=document.createElement("article");c.className="card";c.innerHTML=`<div class="badges"><span class="badge">${x.cat}</span><span class="badge legaltype">${legalType(x)}</span><span class="badge ${statusClass(x.status)}">${x.status}</span></div>
   ${E_GOV_LAW_IDS[x.law]?`<div class="lawid">e-Gov Law ID：${E_GOV_LAW_IDS[x.law]}</div>`:""}<div class="topic">${x.title}</div><div class="law">${x.law}</div><div class="desc">${x.desc}</div><div class="facts">${x.facts.map(f=>`<span class="fact">${f}</span>`).join("")}</div><div class="kw">${x.kw.slice(0,13).map(k=>`<span class="k">${k}</span>`).join("")}</div><div class="bottom"><div class="articlemini">関連：${x.articles.join(" / ")}</div><button class="more" onclick="openD(${DATA.indexOf(x)})">詳しく見る</button></div>`;res.appendChild(c)})}
 function openD(i){
  const x=DATA[i], src=x.source&&x.source[0]?`<a href="${x.source[1]||'#'}" target="_blank">${x.source[0]}</a>`:"確認中";
@@ -400,18 +444,25 @@ function openD(i){
  const metrics=ms.length?ms.map(m=>`<div class="metriccard"><div class="metricvalue">${m.v}</div><div class="metricmeaning">${m.m}</div></div>`).join(""):`<div class="box">このテーマの規制値・基準値・期限は、条文原文との照合が完了したものから掲載します。</div>`;
  const arts=ARTICLE_TEXT[x.title]||[];
  const url=ARTICLE_SOURCES[x.title]||(x.source?x.source[1]:"");
- const articleHtml=arts.length?arts.map(a=>`<div class="articlecard"><div class="articlehead">${a.n}｜${a.h}</div><div class="articlebody">${a.s}</div>${url?`<a class="articlelink" href="${url}" target="_blank">e-Govで該当法令を確認 ↗</a>`:""}</div>`).join(""):`<div class="box">${x.articles.join("\n")}\n\n条番号・内容は一次資料との照合後に具体化します。</div>`;
  const originals=ORIGINAL_TEXT[x.title]||[];
+ const articleNo=s=>{
+   const m=String(s||"").match(/第[0-9０-９一二三四五六七八九十百千]+条(?:の[0-9０-９一二三四五六七八九十百千]+)?/);
+   return m?m[0]:"";
+ };
+ const primaryNos=new Set(originals.map(o=>articleNo(o.n)).filter(Boolean));
+ const relatedArts=arts.filter(a=>!primaryNos.has(articleNo(a.n)));
+ const articleHtml=relatedArts.length?relatedArts.map(a=>`<div class="articlecard"><div class="articlehead">${a.n}｜${a.h}</div><div class="articlebody">${a.s}</div>${url?`<a class="articlelink" href="${url}" target="_blank">e-Govで該当法令を確認 ↗</a>`:""}</div>`).join(""):`<div class="box">主要条文と重複しない関連条文はありません。</div>`;
  const originalHtml=originals.length?originals.map(o=>`<div class="original"><div class="originalname">${o.n}</div><div class="originaltext">${o.t}</div>${url?`<a class="articlelink" href="${url}" target="_blank">e-Govで法令本文を確認 ↗</a>`:""}</div>`).join(""):`<div class="box">条文原文は公式一次資料との照合が完了したテーマから順次掲載します。</div>`;
  const kwHtml=x.kw.map(k=>`<button class="kwbtn" onclick="searchKeyword('${String(k).replace(/'/g,"\\'")}')">${k}</button>`).join("");
  document.getElementById("dt").textContent=x.title;
  document.getElementById("db").innerHTML=`
-  <div class="badges"><span class="badge">${x.cat}</span><span class="badge ${statusClass(x.status)}">${x.status}</span></div>
+  <div class="badges"><span class="badge">${x.cat}</span><span class="badge legaltype">${legalType(x)}</span><span class="badge ${statusClass(x.status)}">${x.status}</span></div>
   ${E_GOV_LAW_IDS[x.law]?`<div class="lawid">e-Gov Law ID：${E_GOV_LAW_IDS[x.law]}</div>`:""}
-  <div class="section lawtop"><h3>条文・条文番号</h3>${originalHtml}</div>
+  <div class="section lawtop"><h3>条文・条文番号</h3>${originalHtml}<div class="hiernote">※上記に表示した条文は、下の「その他の関連条文」には重複表示しません。</div></div>
+  <div class="section legalhier"><h3>法令区分</h3><div class="purpose"><b>${legalType(x)}</b>｜${x.law}<br><span class="hierex">${legalType(x)==="条例"?"自治体ごとに内容が異なるため、対象地域を確認して適用条例を特定します。":legalType(x)==="現場ルール"?"法令に加えて会社・事業所・工事現場独自のルールを確認します。":"国の法令体系上の区分です。"}</span></div></div>
   <div class="section"><h3>要点解説</h3><div class="purpose">${purpose}</div></div>
   <div class="section"><h3>規制値・基準値・期限</h3><div class="metricgrid">${metrics}</div></div>
-  <div class="section"><h3>関連条文</h3>${articleHtml}</div>
+  <div class="section"><h3>その他の関連条文</h3>${articleHtml}</div>
   <div class="section"><h3>現場で確認するポイント</h3><div class="pointgrid">${points}</div></div>
   <div class="section"><h3>関連する検索ワード</h3><div class="cloud">${kwHtml}</div></div>
   <div class="section"><h3>一次資料</h3><div class="box source">${src}</div></div>
@@ -430,10 +481,10 @@ function searchKeyword(k){
  window.scrollTo({top:0,behavior:"smooth"});
 }
 function closeD(){document.getElementById("drawer").classList.remove("open");document.getElementById("bg").classList.remove("open")}
-function showAll(){q.value="";currentCat="";lawFilter.value="";mode="all";document.querySelectorAll(".tab").forEach((t,i)=>t.classList.toggle("active",i===0));drawCats();render()}
+function showAll(){q.value="";currentCat="";typeFilter.value="";lawFilter.value="";mode="all";document.querySelectorAll(".tab").forEach((t,i)=>t.classList.toggle("active",i===0));drawCats();render()}
 document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{document.querySelectorAll(".tab").forEach(z=>z.classList.remove("active"));t.classList.add("active");mode=t.dataset.mode;render()})
-function globalSearch(){currentCat="";lawFilter.value="";mode="all";document.querySelectorAll(".tab").forEach((t,i)=>t.classList.toggle("active",i===0));drawCats();render()}
+function globalSearch(){currentCat="";typeFilter.value="";lawFilter.value="";mode="all";document.querySelectorAll(".tab").forEach((t,i)=>t.classList.toggle("active",i===0));drawCats();render()}
 document.getElementById("go").onclick=globalSearch;
 q.addEventListener("keydown",e=>{if(e.key==="Enter")globalSearch()});
-lawFilter.onchange=render;document.getElementById("close").onclick=closeD;document.getElementById("bg").onclick=closeD;drawCats();render();
+typeFilter.onchange=render;lawFilter.onchange=render;document.getElementById("close").onclick=closeD;document.getElementById("bg").onclick=closeD;drawCats();render();
 </script></body></html>
