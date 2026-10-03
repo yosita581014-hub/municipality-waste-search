@@ -49,6 +49,15 @@ main{max-width:1060px}.result{background:#f5f7fa;padding:18px 22px}.result>.titl
 #sort-scope,#sort-order,#prefecture-filter{height:40px!important;font-size:.88rem!important;border:1px solid #9db0bf;border-radius:9px;background:#fff;padding:7px 30px 7px 10px!important}
 @media(max-width:700px){#sort-controls{grid-template-columns:1fr 1fr!important}#sort-controls label[for="prefecture-filter"]{grid-column:1!important;grid-row:1!important}#prefecture-filter{grid-column:1!important;grid-row:2!important}#sort-controls label[for="sort-scope"]{grid-column:2!important;grid-row:1!important}#sort-scope{grid-column:2!important;grid-row:2!important}#sort-controls label[for="sort-order"]{grid-column:1/3!important;grid-row:3!important}#sort-order{grid-column:1/3!important;grid-row:4!important}#sort-hint{grid-column:1/3!important;grid-row:5!important}}
 .aggregation-coverage{margin:8px 0 10px;padding:10px 12px;border-radius:10px;background:#f5f7fa;border:1px solid #d8e0e7;font-size:.82rem;font-weight:700;color:#44515c}
+.company-overview{background:#fff;border:1px solid #cbdce5;border-radius:12px;padding:14px;text-align:left;color:#192b3b}
+.company-overview h2{margin:3px 0 8px;font-size:1.2rem;overflow-wrap:anywhere}.company-kicker{font-size:11px;color:#536a7a}.company-links{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}.company-links a{font-size:12px;color:#075c70;display:inline-block;padding:5px 9px;background:#edf7fa;border:1px solid #c9e3eb;border-radius:6px}.company-stats{display:flex;flex-wrap:wrap;gap:6px}.company-stats span{background:#f3f6f9;border-radius:6px;padding:5px 8px;font-size:12px}.company-note,.company-sort-note{font-size:11px;line-height:1.6;color:#536477;margin:8px 0 0}.company-sort-bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:12px}.company-sort-bar label{font-size:12px}.company-sort-bar select{flex:1;min-width:0;width:auto;max-width:100%;font-size:13px;padding:8px;border:1px solid #99b5c1;border-radius:7px;background:white}.company-facility-list{display:flex;flex-direction:column;gap:8px}.company-facility-list button .company-facility-value{display:block;font-size:12px;color:#52657a;margin-top:3px}
+/* 施設サマリー：項目の分類色。稼働年数の判定色は既存のまま。 */
+.facility-metrics .metric-equipment{background:#eef5fc;border-color:#c9def2;border-left:3px solid #6b9cc5}
+.facility-metrics .metric-start{background:#f4f0fa;border-color:#dfd3ed;border-left:3px solid #a28abb}
+.facility-metrics .metric-power{background:#fff8e8;border-color:#efdfb5;border-left:3px solid #c4a355}
+.facility-metrics .metric-throughput{background:#edf7f2;border-color:#cce6d8;border-left:3px solid #73a88b}
+.facility-metrics .metric-unknown{background:#f2f4f6;border-color:#d8dee5;border-left:3px solid #aab4c0}
+.facility-metrics .metric-unknown .metric-value{color:#586577;font-weight:600}
 /* 件数に依存しない共通タイムライン。1件でも丸と縦線を保持する。 */
 .construction-history .history-timeline:not(:empty){display:block;min-height:64px;border-left:2px solid #fb923c;margin-left:7px;overflow:visible}
 .construction-history .history-timeline>li{display:block;min-height:44px;padding-bottom:20px;overflow:visible}
@@ -2938,13 +2947,13 @@ function facilityCard(f,click){
  const grid=document.createElement('div');grid.className='metric-grid facility-metrics';
  const age=facilityAge(f);
  for(const [name,value,kind] of [
-  ['処理能力',f.capacity_tpd?Number(f.capacity_tpd).toLocaleString('ja-JP')+' t/日':'未確認',''],
-  ['炉数',f.furnace_count?f.furnace_count+' 炉':'未確認',''],
-  ['稼働開始',f.operation_start||'未確認',''],
+  ['処理能力',f.capacity_tpd?Number(f.capacity_tpd).toLocaleString('ja-JP')+' t/日':'未確認','metric-equipment'],
+  ['炉数',f.furnace_count?f.furnace_count+' 炉':'未確認','metric-equipment'],
+  ['稼働開始',f.operation_start||'未確認','metric-start'],
   ['施設稼働年数（参考）',age?(age.approx?'約':'')+age.years+' 年':'未確認',age?'age-'+age.tone:''],
-  ['発電出力',f.power_kw?Number(f.power_kw).toLocaleString('ja-JP')+' kW':'未確認',''],
-  ['年間処理量'+(f.annual_tonnes_year?'（'+f.annual_tonnes_year+'）':''),f.annual_tonnes?Number(f.annual_tonnes).toLocaleString('ja-JP')+' t/年':'未確認','']
- ])grid.appendChild(makeMetric(name,value,kind));
+  ['発電出力',f.power_kw?Number(f.power_kw).toLocaleString('ja-JP')+' kW':'未確認','metric-power'],
+  ['年間処理量'+(f.annual_tonnes_year?'（'+f.annual_tonnes_year+'）':''),f.annual_tonnes?Number(f.annual_tonnes).toLocaleString('ja-JP')+' t/年':'未確認','metric-throughput']
+ ])grid.appendChild(makeMetric(name,value,value==='未確認'?'metric-unknown':kind));
  card.appendChild(grid);
  const legend=document.createElement('small');legend.className='age-legend';legend.appendChild(document.createTextNode('施設稼働年数の色分け：'));for(const [tone,label] of [['blue','15年未満'],['yellow','15～24年'],['red','25年以上']]){const item=document.createElement('span');item.className='legend-'+tone;item.textContent='● '+label;legend.appendChild(item)}card.appendChild(legend);
  if(f.renovations?.length){const chip=document.createElement('span');chip.className='works-chip';chip.textContent='工事履歴 '+f.renovations.length+'件';card.appendChild(chip)}
@@ -3105,6 +3114,40 @@ function aggregateFacilities(list,mode){
  groups.unverified=unverified;groups.verifiedFacilities=verifiedFacilities;groups.totalFacilities=list.length;
  return groups;
 }
+// 公式サイト本体を確認した会社のみ登録。旧会社は根拠付きの承継先を別表示する。
+const facilityCompanyWebsites={checkedAt:'2026-10-03',entries:[
+ ['カナデビア','https://www.kanadevia.com/'],['タクマ','https://www.takuma.co.jp/'],['JFEエンジニアリング','https://www.jfe-eng.co.jp/'],['神鋼環境ソリューション','https://www.kobelco-eco.co.jp/'],
+ ['三菱重工業','https://www.mhi.com/jp/'],['日鉄エンジニアリング','https://www.eng.nipponsteel.com/'],['川崎重工業','https://www.khi.co.jp/'],['荏原製作所','https://www.ebara.com/jp-ja/'],['荏原環境プラント','https://www.ebara.com/eep/jp-ja/'],
+ ['三機工業','https://www.sanki.co.jp/'],['ユニチカ','https://www.unitika.co.jp/'],['クボタ環境エンジニアリング','https://www.kubota-environmentaleng.co.jp/'],['クボタ','https://www.kubota.co.jp/'],['川崎技研','https://www.kawasaki-giken.com/'],['三菱重工環境・化学エンジニアリング','https://www.mhi.com/jp/group/mhiec/'],['極東開発工業','https://www.kyokuto.com/'],['神戸製鋼所','https://www.kobelco.co.jp/'],['住友重機械工業','https://www.shi.co.jp/'],['プランテック','https://www.plantec.inc/'],['大同特殊鋼','https://www.daido.co.jp/'],['日本車輌製造','https://www.n-sharyo.co.jp/'],['日本ガイシ','https://www.ngk.co.jp/','NGK（旧：日本ガイシ）']
+],legacy:[{name:'日本鋼管',current:'JFEエンジニアリング',url:'https://www.jfe-eng.co.jp/',evidence:'https://www.jfe-eng.co.jp/information/history.html',note:'旧社名。JFEエンジニアリング公式沿革に法人格の継承を記載。'},{name:'JFE環境ソリューションズ',current:'JFEエンジニアリング',url:'https://www.jfe-eng.co.jp/',evidence:'https://www.jfe-eng.co.jp/information/history.html',note:'旧会社。JFEエンジニアリング公式沿革に2009年の本体統合を記載。'}]};
+function companyWebsiteLinks(label){
+ const exact=facilityCompanyWebsites.entries.find(([name])=>name===label);if(exact)return [{name:exact[2]||exact[0],url:exact[1]}];
+ const old=facilityCompanyWebsites.legacy.find(e=>e.name===label);if(old)return [{name:old.current+'（承継先）',url:old.url,note:old.note,evidence:old.evidence}];
+ // 複数社表記では一致した会社名を個別表示する。会社全体の同一視はしない。
+ const matches=facilityCompanyWebsites.entries.filter(([name])=>label.includes(name));
+ return matches.filter(([name])=>!matches.some(([other])=>other!==name&&other.includes(name))).map(([name,url])=>({name,url}));
+}
+function renderCompanyFacilities(g,mode,candidates){
+ const modeLabel=mode==='builder'?'施工会社':mode==='operator'?'運営会社':'処理方式';
+ candidates.replaceChildren();
+ const back=document.createElement('button');back.type='button';back.textContent='← '+modeLabel+'ランキングに戻る';back.addEventListener('click',()=>runSearch());candidates.appendChild(back);
+ const header=document.createElement('section');header.className='company-overview';
+ const kicker=document.createElement('div');kicker.className='company-kicker';kicker.textContent=modeLabel+'別・掲載施設';header.appendChild(kicker);
+ const title=document.createElement('h2');title.textContent=g.label;header.appendChild(title);
+ if(mode!=='process'){
+  const links=document.createElement('div');links.className='company-links';const sites=companyWebsiteLinks(g.label);
+  for(const site of sites){const a=document.createElement('a');a.href=site.url;a.target='_blank';a.rel='noopener noreferrer';a.textContent=site.name+' 公式HP ↗';links.appendChild(a);if(site.note){const note=document.createElement('p');note.className='company-note';note.textContent=site.note;const source=document.createElement('a');source.href=site.evidence;source.target='_blank';source.rel='noopener noreferrer';source.textContent='公式沿革 ↗';note.appendChild(source);links.appendChild(note);}}
+  if(!sites.length){const note=document.createElement('span');note.className='company-note';note.textContent='公式HP：未確認（旧社名・JVを含むため、推測したリンクは表示しません）';links.appendChild(note);}header.appendChild(links);
+ }
+ const stats=document.createElement('div');stats.className='company-stats';const ages=g.facilities.map(f=>facilityAge(f)).filter(Boolean);const statsText=['掲載 '+g.facilities.length+'施設','所在 '+new Set(g.facilities.map(f=>facilityPrefecture(f)).filter(Boolean)).size+'都道府県','稼働25年以上 '+ages.filter(a=>a.years>=25).length+'施設'];for(const text of statsText){const s=document.createElement('span');s.textContent=text;stats.appendChild(s);}header.appendChild(stats);
+ const note=document.createElement('p');note.className='company-note';note.textContent='現在の検索・都道府県条件に含まれる登録施設の集計です。全国の全納入実績・市場シェアを示すものではありません。';header.appendChild(note);
+ const sortbar=document.createElement('div');sortbar.className='company-sort-bar';const label=document.createElement('label');label.htmlFor='company-facility-sort';label.textContent='この一覧の並び順';const select=document.createElement('select');select.id='company-facility-sort';
+ const options=[['name','施設名順'],['capacity-desc','処理能力 t/日（多い順）'],['capacity-asc','処理能力 t/日（少ない順）'],['age-new','施設稼働年数（新しい順）'],['age-old','施設稼働年数（古い順）'],['annual-desc','年間処理量 t（多い順）'],['annual-asc','年間処理量 t（少ない順）'],['power-desc','発電出力 kW（多い順）'],['power-asc','発電出力 kW（少ない順）'],['operation-new','稼働開始年度（新しい順）'],['operation-old','稼働開始年度（古い順）']];for(const [value,text]of options){const option=document.createElement('option');option.value=value;option.textContent=text;select.appendChild(option);}sortbar.append(label,select);header.appendChild(sortbar);
+ const sortNote=document.createElement('p');sortNote.className='company-sort-note';header.appendChild(sortNote);candidates.appendChild(header);
+ const items=document.createElement('div');items.className='company-facility-list';candidates.appendChild(items);
+ function render(){const ordered=sortFacilities(g.facilities,select.value);items.replaceChildren();sortNote.textContent='表示：'+select.options[select.selectedIndex].text+' ／ 数字は通し番号です。'+(select.value==='name'?'':'数値・年度が未確認の施設は末尾に表示します。');for(const [i,f]of ordered.entries()){const child=document.createElement('button');child.type='button';child.classList.add('facility-list-card');const text=document.createElement('span');text.textContent=(i+1)+'｜'+f.name+'｜'+facilityPrefecture(f);child.appendChild(text);if(select.value!=='name'){const metric=document.createElement('span');metric.className='company-facility-value';metric.textContent=select.options[select.selectedIndex].text.replace(/（.*$/,'')+'：'+facilitySortLabel(f,select.value);child.appendChild(metric);}child.addEventListener('click',()=>{document.getElementById('sort-scope').value='search';document.getElementById('q').value=f.name;searchAndShow(f.name,f.id)});items.appendChild(child);}}
+ select.addEventListener('change',render);render();document.getElementById('search-feedback').textContent=modeLabel+'「'+g.label+'」：'+g.count.toLocaleString('ja-JP')+'施設';showResult(g.label+' に該当する施設を一覧表示しています。');
+}
 function renderFacilityAggregation(list,mode,candidates,maxCandidates){
  const groups=aggregateFacilities(list,mode);
  const shown=groups.slice(0,maxCandidates);
@@ -3115,18 +3158,7 @@ function renderFacilityAggregation(list,mode,candidates,maxCandidates){
  for(const [rank,g] of shown.entries()){
   const button=document.createElement('button');button.type='button';button.classList.add('facility-list-card');
   button.textContent=(rank+1)+'位｜'+modeLabel+'｜'+g.label+'｜'+g.count.toLocaleString('ja-JP')+'施設';
-  button.addEventListener('click',()=>{
-   candidates.replaceChildren();
-   for(const [i,f] of g.facilities.sort((a,b)=>String(a.name).localeCompare(String(b.name),'ja')).entries()){
-    const child=document.createElement('button');child.type='button';child.classList.add('facility-list-card');
-    child.textContent=(i+1)+'｜'+f.name+'｜'+facilityPrefecture(f);
-    child.addEventListener('click',()=>{document.getElementById('sort-scope').value='search';document.getElementById('q').value=f.name;searchAndShow(f.name,f.id)});
-    candidates.appendChild(child);
-   }
-   const back=document.createElement('button');back.type='button';back.textContent='← '+modeLabel+'ランキングに戻る';back.addEventListener('click',()=>runSearch());candidates.prepend(back);
-   document.getElementById('search-feedback').textContent=modeLabel+'「'+g.label+'」：'+g.count.toLocaleString('ja-JP')+'施設';
-   showResult(g.label+' に該当する施設を一覧表示しています。');
-  });
+  button.addEventListener('click',()=>renderCompanyFacilities(g,mode,candidates));
   candidates.appendChild(button);
  }
  return {totalGroups:groups.length,shownGroups:shown.length,unverified:groups.unverified,verifiedFacilities:groups.verifiedFacilities};
