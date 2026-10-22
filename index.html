@@ -3214,7 +3214,7 @@ function validSortForScope(scope,mode){
  const city=scope==='municipalities';
  const facility=scope==='facilities';
  if(city)return ['related','population-desc','population-asc'].includes(mode)?mode:'population-desc';
- if(facility)return ['capacity-desc','capacity-asc','age-new','age-old','annual-desc','annual-asc','power-desc','power-asc','operation-new','operation-old','builder','operator','process'].includes(mode)?mode:'capacity-desc';
+ if(facility)return [...['filter-cap-under','filter-cap-over','filter-age-under','filter-age-over','filter-op-continuous','filter-op-intermittent'],'capacity-desc','capacity-asc','age-new','age-old','annual-desc','annual-asc','power-desc','power-asc','operation-new','operation-old','builder','operator','process'].includes(mode)?mode:'capacity-desc';
  return 'related';
 }
 function updateSortUI(){
@@ -3222,7 +3222,7 @@ function updateSortUI(){
  const valid=validSortForScope(scope,sort.value);if(valid!==sort.value)sort.value=valid;
  const city=scope==='municipalities',facility=scope==='facilities';
  const citySorts=['related','population-desc','population-asc'];
- const facilitySorts=['capacity-desc','capacity-asc','age-new','age-old','annual-desc','annual-asc','power-desc','power-asc','operation-new','operation-old','builder','operator','process'];
+ const facilitySorts=[...['filter-cap-under','filter-cap-over','filter-age-under','filter-age-over','filter-op-continuous','filter-op-intermittent'],'capacity-desc','capacity-asc','age-new','age-old','annual-desc','annual-asc','power-desc','power-asc','operation-new','operation-old','builder','operator','process'];
  for(const opt of sort.options){opt.disabled=city?!citySorts.includes(opt.value):facility?!facilitySorts.includes(opt.value):opt.value!=='related'}
  document.getElementById('prefecture-filter').disabled=false;
  const hint=document.getElementById('sort-hint');
@@ -3237,14 +3237,15 @@ function searchAndShow(q,selectedFacilityId='',selectedMunicipalityCode='',skipH
  const area=document.getElementById('related');area.replaceChildren();
  const choice=document.getElementById('facility-choice');choice.replaceChildren();const candidates=document.getElementById('search-candidates');candidates.replaceChildren();
  const scope=document.getElementById('sort-scope').value,sortMode=validSortForScope(scope,document.getElementById('sort-order').value),pref=document.getElementById('prefecture-filter').value,query=norm(q);
+ const selectedFilter=String(document.getElementById('sort-order').value).startsWith('filter-')?document.getElementById('sort-order').value:'';
  let m=[],fs=[];let browse=false;
  if(scope==='municipalities'){browse=true;m=rows.filter(r=>!pref||r.prefecture===pref);if(query)m=m.filter(r=>norm(cityLabel(r)).includes(query)||norm(r.municipality).includes(query))}
  else if(scope==='facilities'){browse=true;fs=facilities.filter(f=>(!pref||facilityPrefecture(f)===pref)&&(!query||norm(f.name).includes(query)||(f.aliases||[]).some(alias=>norm(alias).includes(query))||norm(f.builder||'').toLowerCase().includes(query.toLowerCase())||norm(f.plant_builder_verified||'').toLowerCase().includes(query.toLowerCase())))}
  else {m=query?find(q).filter(r=>!pref||r.prefecture===pref):[];fs=query?facilities.filter(f=>(!pref||facilityPrefecture(f)===pref)&&(norm(f.name).includes(query)||(f.aliases||[]).some(alias=>norm(alias).includes(query))||norm(f.builder||'').toLowerCase().includes(query.toLowerCase())||norm(f.plant_builder_verified||'').toLowerCase().includes(query.toLowerCase()))):[]}
  if(scope!=='municipalities'&&!selectedFacilityId){
-  const cap=document.getElementById('facility-capacity-filter')?.value||'all';
-  const age=document.getElementById('facility-age-filter')?.value||'all';
-  const op=document.getElementById('facility-operation-filter')?.value||'all';
+  const cap=selectedFilter==='filter-cap-under'?'under':selectedFilter==='filter-cap-over'?'over':'all';
+  const age=selectedFilter==='filter-age-under'?'under':selectedFilter==='filter-age-over'?'over':'all';
+  const op=selectedFilter==='filter-op-continuous'?'continuous':selectedFilter==='filter-op-intermittent'?'intermittent':'all';
   if(cap!=='all'||age!=='all'||op!=='all'){
    fs=fs.filter(f=>{
     const n=Number(String(f.capacity_tpd||'').replace(/,/g,''));
@@ -4667,68 +4668,20 @@ for(const [id,value,label] of [['prefecture-filter','','都道府県を全国に
 })();
 </script>
 
-<style id="facility-refine-css">#facility-refine{display:flex;gap:10px;align-items:end;flex-wrap:wrap;padding:15px 18px;margin:12px 0 16px;border:1px solid #cddde8;border-radius:14px;background:linear-gradient(120deg,#f3f8fc,#eaf4f3);box-shadow:0 3px 15px #123b5008}#facility-refine .refine-title{width:100%;font-weight:800;color:#123b50;font-size:.89rem}#facility-refine label{display:flex;flex-direction:column;gap:5px;flex:1 1 175px;font-size:.8rem;font-weight:700;color:#315166}#facility-refine select{width:100%;min-height:40px;padding:7px 10px;border:1px solid #aec5d3;border-radius:9px;background:white;color:#123b50;font-size:.9rem}#facility-refine button{padding:10px 15px;border-radius:9px;background:#e0eaf0;color:#173e50;border:1px solid #b8d0dc;font-size:.82rem}@media(max-width:570px){#facility-refine{padding:12px}#facility-refine label{flex-basis:100%}}</style>
-<script id="facility-refine-module">(()=>{
- const anchor=document.getElementById('sort-controls');if(!anchor)return;
- const panel=document.createElement('section');panel.id='facility-refine';
- panel.innerHTML='<div class="refine-title">▦ 施設を詳しく絞り込む</div><label>処理能力<select id="facility-capacity-filter"><option value="all">すべて</option><option value="under">100t/日未満</option><option value="over">100t/日以上</option></select></label><label>稼働年数<select id="facility-age-filter"><option value="all">すべて</option><option value="under">15年未満</option><option value="over">15年以上</option></select></label><label>運転方式<select id="facility-operation-filter"><option value="all">すべて</option><option value="continuous">連続運転（全連続・准連続）</option><option value="intermittent">間欠運転（バッチ式）</option></select></label><button type="button" id="facility-refine-clear">条件をクリア</button>';
- anchor.after(panel);
- const controls=[...panel.querySelectorAll('select')];
- controls.forEach(el=>el.addEventListener('change',()=>{document.getElementById('sort-scope').value='facilities';updateSortUI();runSearch()}));
- panel.querySelector('button').addEventListener('click',()=>{controls.forEach(el=>el.value='all');runSearch()});
- document.getElementById('home-button').addEventListener('click',()=>controls.forEach(el=>el.value='all'));
-})();</script><style id="search-redesign-20261023">
-body:not(.dashboard-open) #search{margin:20px 0 12px;padding:0;border:0;background:transparent}
-#search>label{display:block;font-weight:800;letter-spacing:.015em;color:#193e51;margin-bottom:9px;font-size:.92rem}
-#search-row{display:flex;align-items:stretch;gap:9px;padding:7px;background:#fff;border:1px solid #cadae5;border-radius:16px;box-shadow:0 7px 28px #193e5114;transition:box-shadow .2s,border-color .2s}
-#search-row:focus-within{border-color:#178f82;box-shadow:0 0 0 4px #178f8216,0 10px 30px #193e5117}
-#search-row #q{border:0!important;box-shadow:none!important;outline:none!important;min-height:48px;margin:0;background:transparent;font-size:1rem;padding:10px 12px}
-#search-row #clear-search{background:#f0f4f7;border:0;border-radius:10px;color:#536b7c;min-width:44px;width:44px}
-#search-row #submit-search{min-width:83px;width:83px;border-radius:10px;background:#117b70;border:0;font-weight:800}
-#sort-controls{display:flex!important;gap:10px;flex-wrap:wrap;align-items:center;margin:0 0 10px;padding:0!important;background:transparent!important;border:0!important;box-shadow:none!important}
-#sort-controls label{font-size:.78rem!important;color:#526a7a;font-weight:700}
-#sort-controls select{background:#fff;border:1px solid #ccdae3;border-radius:10px;padding:8px 10px;min-height:38px;font-size:.86rem;max-width:240px}
+
+<style id="compact-search-final">
+#search{margin:12px 0 14px!important}#search-row{background:#fff;border:1px solid #cadbe2;border-radius:15px;padding:6px;box-shadow:0 7px 22px #123b5010}
+#search-row #q{border:0!important;box-shadow:none!important;outline:0!important;font-size:1rem;min-height:46px;background:transparent}
+#search-row #submit-search{border-radius:9px;background:#087c62}#search-row #clear-search{border-radius:9px}
+#sort-controls{gap:8px!important;padding:0!important;border:0!important;background:transparent!important}
+#sort-controls select{border-radius:9px!important;max-width:100%;min-height:39px}
 #sort-hint{display:none!important}
-#advanced-search{margin:3px 0 18px;border:1px solid #e0e8ee;border-radius:13px;background:#f8fafc;overflow:hidden}
-#advanced-search summary{cursor:pointer;user-select:none;list-style:none;padding:12px 16px;color:#235168;font-size:.87rem;font-weight:800;display:flex;justify-content:space-between;align-items:center}
-#advanced-search summary::-webkit-details-marker{display:none}
-#advanced-search summary::after{content:"＋";font-size:1.15rem;color:#3a7184}
-#advanced-search[open] summary::after{content:"−"}
-#advanced-search[open] summary{border-bottom:1px solid #e0e8ee}
-#advanced-search .advanced-body{padding:15px}
-#advanced-search .advanced-sort-label{display:flex;flex-direction:column;gap:7px;font-size:.8rem;color:#375569;font-weight:700;max-width:360px}
-#advanced-search #sort-order{width:100%;padding:10px;border:1px solid #c4d6df;border-radius:9px;background:white;color:#183c50}
-#advanced-search #facility-refine{margin:12px 0 0;border:0;box-shadow:none;background:transparent;padding:0;gap:12px}
-#advanced-search #facility-refine .refine-title{display:none}
-#active-filter-chips{display:flex;flex-wrap:wrap;gap:7px;margin:0 0 10px}
-#active-filter-chips:empty{display:none}
-#active-filter-chips button{font-size:.76rem;font-weight:700;border-radius:999px;background:#e5f3f0;color:#11695f;border:1px solid #b9ded6;padding:7px 11px}
-@media(max-width:600px){#search-row #submit-search{min-width:66px;width:66px}#search-row #q{font-size:16px;padding:8px 4px}#sort-controls select{max-width:100%}#advanced-search .advanced-body{padding:12px}}
-</style><script id="search-redesign-controller">(()=>{
- const form=document.getElementById('search'),sort=document.getElementById('sort-controls'),panel=document.getElementById('facility-refine');
- if(!form||!sort||!panel)return;
- sort.parentNode.insertBefore(form,sort);
- const details=document.createElement('details');details.id='advanced-search';
- const summary=document.createElement('summary');summary.textContent='詳細条件・並び順';
- const body=document.createElement('div');body.className='advanced-body';
- details.append(summary,body);sort.after(details);
- const sortOrder=document.getElementById('sort-order');
- if(sortOrder){const label=document.querySelector('label[for="sort-order"]');const wrap=document.createElement('div');wrap.className='advanced-sort-label';if(label)wrap.appendChild(label);wrap.appendChild(sortOrder);body.appendChild(wrap)}
- body.appendChild(panel);
- const chips=document.createElement('div');chips.id='active-filter-chips';details.after(chips);
- const configs=[['prefecture-filter','都道府県'],['sort-scope','対象'],['sort-order','並び順'],['facility-capacity-filter','処理能力'],['facility-age-filter','稼働年数'],['facility-operation-filter','運転方式']];
- const defaults={'prefecture-filter':'','sort-scope':'search','sort-order':'related','facility-capacity-filter':'all','facility-age-filter':'all','facility-operation-filter':'all'};
- function refresh(){
-  chips.replaceChildren();
-  for(const [id,title] of configs){
-   const el=document.getElementById(id);if(!el||el.value===defaults[id])continue;
-   const item=document.createElement('button');item.type='button';item.textContent=title+'：'+el.selectedOptions[0].textContent+' ×';
-   item.addEventListener('click',()=>{el.value=defaults[id];el.dispatchEvent(new Event('change',{bubbles:true}));refresh()});
-   chips.appendChild(item);
-  }
- }
- configs.forEach(([id])=>document.getElementById(id)?.addEventListener('change',refresh));
- document.getElementById('facility-refine-clear')?.addEventListener('click',refresh);
- document.getElementById('home-button')?.addEventListener('click',()=>requestAnimationFrame(refresh));
- refresh();
+@media(max-width:600px){#sort-controls{display:grid!important;grid-template-columns:auto 1fr;align-items:center}#sort-controls label{font-size:.79rem}#sort-controls select{width:100%}#search-row #q{font-size:16px}}
+</style>
+<script id="compact-search-controller">(()=>{
+const sort=document.getElementById('sort-order'),scope=document.getElementById('sort-scope');if(!sort||!scope)return;
+const group=document.createElement('optgroup');group.label='施設を絞り込む';
+for(const [value,name] of [['filter-cap-under','処理能力：100t/日未満'],['filter-cap-over','処理能力：100t/日以上'],['filter-age-under','稼働年数：15年未満'],['filter-age-over','稼働年数：15年以上'],['filter-op-continuous','運転方式：連続運転'],['filter-op-intermittent','運転方式：間欠運転']]){const opt=document.createElement('option');opt.value=value;opt.textContent=name;group.append(opt)}
+sort.append(group);
+sort.addEventListener('change',()=>{if(sort.value.startsWith('filter-')&&scope.value!=='facilities'){scope.value='facilities';updateSortUI();runSearch()}});
 })();</script></body></html>
