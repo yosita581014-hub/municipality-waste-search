@@ -47,3 +47,9 @@
 - moe_1010017 玉村町クリーンセンター: 玉村町公式 https://www.town.tamamura.lg.jp/docs/2017020700030/ に1990年建設、1995年24時間運転体制改良の記録。https://www.town.tamamura.lg.jp/docs/2023061600017/file_contents/teirei5_0901.pdf は2023年のタクマによる年次整備工事で、当初施工の証明ではない。施工会社は未確認。
 - 甘楽西部環境衛生施設組合清掃センター: https://nanmoku.ne.jp/lifehealth/life/environmental_sanitary/ に維持管理情報。施工者名の直接確認は未達。
 - いずれも当初施工会社の新規登録は0件。改修工事担当を当初施工会社に誤登録しない。
+
+## 2026-10-23 継続調査: 碓氷川クリーンセンター（moe_1010014）
+- 安中市公式施設概要 https://www.city.annaka.lg.jp/page/1728.html : 所在地 原市65、1995年6月着工・1998年3月竣工、ごみ焼却135t/日（67.5t/24h×2炉）、総事業費65億4565万円。環境省2024年度台帳の同施設・同能力・同炉数・1998年度稼働に一致。
+- 不二サッシ公式 https://www.fujisash.co.jp/hp/business/environment/dest/case/ は飛灰処理設備実績として「株式会社タクマ」を並記しているが、当初焼却施設本体の工事施工者を直接証明する記録ではないためbuilderを変更しない。
+- 安中市公式・入札 https://portal.g-cals.e-gunma.lg.jp/ebia/servlet/p?anken_no=202502110201039&job=AcKekkaBDetail&shubetsucd=02 は2025年精密機能検査契約。新設施工者ではない。
+- 当初施工会社未確定。新規builder登録0件。次は1995～1998年の本体設計・建設工事契約公表か施工JVの直接一次資料を探す。
