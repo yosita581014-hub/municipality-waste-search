@@ -4606,8 +4606,25 @@ for(const [id,value,label] of [['prefecture-filter','','都道府県を全国に
  function switchPage(open){document.body.classList.toggle('dashboard-open',open);dashboard.hidden=!open;dashTab.setAttribute('aria-pressed',String(open));searchTab.setAttribute('aria-pressed',String(!open));if(open)render();}
  searchTab.addEventListener('click',()=>switchPage(false));dashTab.addEventListener('click',()=>{pref.value=document.getElementById('prefecture-filter').value;switchPage(true)});pref.addEventListener('change',render);document.getElementById('home-button').addEventListener('click',()=>switchPage(false));
  const num=v=>new Intl.NumberFormat('ja-JP',{maximumFractionDigits:1}).format(v);
- function openFacility(f){switchPage(false);document.getElementById('prefecture-filter').value=pref.value;document.getElementById('sort-scope').value='facilities';updateSortUI();document.getElementById('q').value=f.name;searchAndShow(f.name,f.id);document.getElementById('result').scrollIntoView({behavior:'smooth',block:'start'});}
- function openGroup(g,mode){switchPage(false);document.getElementById('prefecture-filter').value=pref.value;document.getElementById('sort-scope').value='facilities';updateSortUI();document.getElementById('sort-order').value=mode;document.getElementById('q').value='';runSearch();renderCompanyFacilities(g,mode,document.getElementById('search-candidates'));}
+ let returnToDashboard=null;
+ function saveDashboardReturn(){
+  returnToDashboard={pref:pref.value,ranking:ranking.value,scrollY:window.scrollY};
+  document.getElementById('back-button').disabled=false;
+ }
+ document.getElementById('back-button').addEventListener('click',function(event){
+  if(!returnToDashboard||!dashboard.hidden)return;
+  event.stopImmediatePropagation();
+  const state=returnToDashboard;returnToDashboard=null;
+  pref.value=state.pref;ranking.value=state.ranking;
+  switchPage(true);
+  document.getElementById('back-button').disabled=viewHistory.length<2;
+  requestAnimationFrame(()=>requestAnimationFrame(()=>window.scrollTo({top:state.scrollY,behavior:'instant'})));
+ },true);
+ document.getElementById('home-button').addEventListener('click',()=>{returnToDashboard=null;});
+ searchTab.addEventListener('click',()=>{returnToDashboard=null;});
+ dashTab.addEventListener('click',()=>{returnToDashboard=null;});
+ function openFacility(f){saveDashboardReturn();switchPage(false);document.getElementById('prefecture-filter').value=pref.value;document.getElementById('sort-scope').value='facilities';updateSortUI();document.getElementById('q').value=f.name;searchAndShow(f.name,f.id);document.getElementById('result').scrollIntoView({behavior:'smooth',block:'start'});}
+ function openGroup(g,mode){saveDashboardReturn();switchPage(false);document.getElementById('prefecture-filter').value=pref.value;document.getElementById('sort-scope').value='facilities';updateSortUI();document.getElementById('sort-order').value=mode;document.getElementById('q').value='';runSearch();renderCompanyFacilities(g,mode,document.getElementById('search-candidates'));}
  function panel(title,note,items,unit,onClick,tone=''){
   const section=document.createElement('section');section.className='dash-panel';section.dataset.tone=tone;const h=document.createElement('h3');h.textContent=title;const p=document.createElement('p');p.className='dash-note';p.textContent=note;section.append(h,p);
   const maximum=Math.max(1,...items.map(x=>x.value));
