@@ -53,3 +53,22 @@
 - 不二サッシ公式 https://www.fujisash.co.jp/hp/business/environment/dest/case/ は飛灰処理設備実績として「株式会社タクマ」を並記しているが、当初焼却施設本体の工事施工者を直接証明する記録ではないためbuilderを変更しない。
 - 安中市公式・入札 https://portal.g-cals.e-gunma.lg.jp/ebia/servlet/p?anken_no=202502110201039&job=AcKekkaBDetail&shubetsucd=02 は2025年精密機能検査契約。新設施工者ではない。
 - 当初施工会社未確定。新規builder登録0件。次は1995～1998年の本体設計・建設工事契約公表か施工JVの直接一次資料を探す。
+
+## 2026-10-23 第10施設一括調査（batch74 research-only）
+
+対象10施設。**この10件では新規builder登録0件**。根拠が当初施工会社を特定しない場合は工事会社を推測しない。
+
+| ID | 施設 | 一次資料照合・判断 |
+|---|---|---|
+| moe_0110001 | 札幌市駒岡清掃工場（旧600t/日、1985年度） | 岩田地崎建設公式 https://www.iwatachizaki.jp/result/detail/122.html は1982年8月着工・1985年11月竣工、JVメインで工場棟等の**建築施工**を記載。一方、現行新工場は真駒内129-3・2025年7月竣工、https://komaoka-ht.jp/about/ に別JVを記載。**旧と新は別世代**。旧のプラントメーカーへの誤転用禁止。 |
+| moe_0110060 | 利尻郡ごみ焼却処理場 | 環境省旧台帳 https://www.env.go.jp/recycle/dioxin/ippan/html/hokkai.html は1991年2月運転開始・15t/日・機械化バッチを掲載。当初建設者の直接証明なし。 |
+| moe_0110061 | 南後志清掃センター | 同環境省旧台帳および https://www.env.go.jp/content/900533123.pdf は1994年6月運転開始・18t/日・機械化バッチ。施工者不明。 |
+| moe_0110062 | しらかば清掃センター | 環境省旧台帳で1993年6月開始・37.5t/日×2炉・全連続。施工者不明。 |
+| moe_0110065 | 北十勝2町環境衛生処理組合ごみ処理施設 | 環境省旧台帳に1997年4月運転開始・15t/日・機械化バッチ1炉。施工者不明。 |
+| moe_0210008 | 南部清掃工場 | 弘前地区環境整備事務組合 https://souma.city.hirosaki.aomori.jp/kankyoseibi/shisetsu/nanbu.html に1992年3月竣工・140t/日。組合沿革 https://www.city.hirosaki.aomori.jp/kankyoseibi/shoukai/index.html に1989年10月着工。施工者名未発見。 |
+| moe_0210009 | 黒石地区環境管理センター | 黒石市 https://www.city.kuroishi.aomori.jp/kurashi/kurashi/gomi_recycle/gomihenkou202604.html に2026年3月閉鎖・4月広域移行。別の黒石市年表 https://www.city.kuroishi.aomori.jp/shisei/about/city_event/syouwa_event.html の1983年完成施設と2024年度台帳の1988年度施設が同じ建設世代か**未確定**。混同注意。 |
+| moe_1010017 | 玉村町クリーンセンター | 玉村町 https://www.town.tamamura.lg.jp/docs/2017020700030/ 1990年建設、1995年に24時間運転改良。https://www.nikoukei.co.jp/news/detail/7858 の2001年タクマ受注は**ダイオキシン対策改造**で、当初施工ではない。 |
+| moe_1010013 | 富岡市清掃センター | 富岡市 https://www.city.tomioka.lg.jp/www/contents/1000000000757/index.html に112.5t/日・2炉、施工JFEエンジニアリングを明記。既にbatch73でbuilderへの補完スクリプトあり、**新規登録として二重加算しない**。 |
+| moe_0110064 | クリーンおしま | 環境省 https://www.env.go.jp/content/900533123.pdf に2003年4月開始・63t/日×2炉。既存builderタクマあり。再確認のみで新規登録扱いしない。 |
+
+本セットの確認：調査10施設、追加施工会社0、未確定施工会社を推測登録0、参考一次資料URL 9以上（上記）。施設世代の混同注意2件。GitHub index.htmlとUIは変更せず。
