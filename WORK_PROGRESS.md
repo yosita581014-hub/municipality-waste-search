@@ -88,3 +88,16 @@
 |moe_0210005|外ヶ浜町ごみ処理施設|外ヶ浜町公式施設計画 https://www.town.sotogahama.lg.jp/gyosei/gyouzaisei/files/kobetsushisetsukeikaku.pdf では施設「グリーンハート外ヶ浜」2009年建築。設計施工の協和エクシオは既往調査登録あり、二重計上禁止。|
 |moe_0210001|青森市清掃工場|台帳2015年度・300t/日。既登録builderを保護し、今回新規登録に算入しない。|
 結果：10施設調査／新規施工会社登録0／当初施工会社を今回新たに確定した施設0／UI・index.html変更なし。次回は未確定施設に対する旧建設契約書、竣工記念誌、設備メーカー公式施工実績を優先。
+
+## batch74 青森10施設（2026-10-23）
+調査対象：moe_0210013,moe_0210007,moe_0210016,moe_0210011,moe_0210017,moe_0210006,moe_0210005,moe_0210001,moe_0210010,moe_0210008（10施設）。
+- 八戸第一工場: 組合公式 https://www.city.hachinohe.aomori.jp/section/koiki/seisou/seisou.html に「設計施工 荏原製作所」、1996年7月竣工、300t/日。builder空欄時のみ追加するbatch74記録。
+- クリーン・ペア・はまなす: 組合公式 https://hokubukamikita.org/hamanasu/guide に「設計・製作・施工 川崎重工業」、1998年3月竣工、52t/日。builder空欄時のみ追加するbatch74記録。
+- 弘前地区環境整備センター: https://souma.city.hirosaki.aomori.jp/kankyoseibi/shisetsu/seibi.html は2003年竣工・246t/日を確認。清水建設資料は設計監理でプラント建設施工と混同しない。
+- 十和田焼却施設: https://www.towada-kouiki.jp/soshiki_shisetu.html は1985年当初竣工・2002年改造。2022年以後と処理能力表記差あり。施工会社未確認。
+- エコクリーンアフイ: 当初施工会社の直接根拠未取得。
+- 中部上北清掃センター: https://www.env.go.jp/recycle/dioxin/ippan/html/aomori.html は2000年開始・30t×2炉。同ページは施工会社の根拠ではない。
+- 外ヶ浜町施設、青森市清掃工場: 既存登録は保護。新規登録件数に計上しない。
+- 西部クリーンセンター: https://www.tsgren.jp/jimu/generalwaste/jimu_shisetsu.html 1986年11月竣工・150t/日、2003年改修・2021年基幹改良。施工会社未確認。
+- 南部清掃工場: https://souma.city.hirosaki.aomori.jp/kankyoseibi/shisetsu/nanbu.html 1992年3月竣工・140t/日。施工会社未確認。
+実際の新規登録数はbuilder実行後の空欄→非空欄を照合して確定すること。batch74処理は空欄時のみ書込、既存を上書きしない。UI変更なし。
