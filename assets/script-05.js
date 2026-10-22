@@ -1,0 +1,8 @@
+
+// 2026-10-04 batch47: verified original construction builders
+(()=>{
+const updates={"moe_4510109":{"builder":"三菱重工業・竹中工務店・坂下組・柴坂建設特定建設工事共同企業体","builder_source":"https://www.mhi.com/jp/news/250409.html","builder_scope":"当初建設・設計施工確認済み","builder_basis":"宮崎市公式の施設概要に、処理能力579t/日（193t/日×3炉）、完成2005年10月、設計施工=三菱重工業・竹中工務店・坂下組・柴坂建設特定建設工事共同企業体と直接記載。三菱重工公式も焼却施設は三菱重工の設計・施工で2005年10月完成と記載。","history_note":"2005年10月完成。当初設計・施工：三菱重工業・竹中工務店・坂下組・柴坂建設特定建設工事共同企業体。2021～2024年度基幹改良：三菱重工環境・化学エンジニアリング。"},"moe_4510001":{"builder":"川重・大淀・丸昭・匠・持永特定建設工事共同企業体","builder_source":"https://www.khi.co.jp/pressrelease/detail/20111220_1.html","builder_scope":"当初建設・設計施工確認済み","builder_basis":"川崎重工公式ニュースに、都城市クリーンセンター建設・維持管理事業の建設工事受注者として川重・大淀・丸昭・匠・持永特定建設工事共同企業体（代表企業：川崎重工）を直接記載。230t/日（115t/日×2炉）、2015年2月完工予定で施設条件一致。","history_note":"2011年12月受注、2015年2月28日完工。建設工事受注：川重・大淀・丸昭・匠・持永特定建設工事共同企業体（代表：川崎重工）。"},"moe_4410002":{"builder":"三菱重工業株式会社","builder_source":"https://www.city.oita.oita.jp/o143/kurashi/gomi/documents/4.pdf","builder_scope":"当初建設・設計施工確認済み","builder_basis":"大分市公式『第4章 処理施設・車両』に、福宗環境センター清掃工場について処理能力146t/24h×3基、設計施工=三菱重工業㈱、工期1993年6月～1997年3月、稼働開始1997年4月1日と直接記載。","history_note":"1997年3月竣工、同年4月1日稼働開始。当初設計・施工：三菱重工業株式会社。"},"moe_4410001":{"builder":"新日本製鐵株式会社（現・日鉄エンジニアリング系）","builder_source":"https://www.city.oita.oita.jp/o143/kurashi/gomi/documents/4.pdf","builder_scope":"当初建設・設計施工確認済み","builder_basis":"大分市公式資料に佐野清掃センター清掃工場の設計施工=新日本製鐵㈱、処理能力129t/24h×3基、工期2000年10月～2003年3月、稼働開始2003年4月1日と直接記載。","history_note":"2003年3月竣工、同年4月1日稼働開始。当初設計・施工：新日本製鐵株式会社。"}};
+if(typeof facilities!=='undefined'&&Array.isArray(facilities)){
+ for(const f of facilities){const u=updates[f.id];if(u)Object.assign(f,u);}
+}
+})();

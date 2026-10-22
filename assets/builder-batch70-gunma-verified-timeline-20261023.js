@@ -1,0 +1,4 @@
+(()=>{const items=[
+['moe_1010017','玉村町公式年表に1990年クリーンセンター建設、1995年24時間運転体制改良工事。2001年のタクマ落札は排ガス対策の改造工事であり、当初施工とは異なる。','https://www.town.tamamura.lg.jp/docs/2017020700030/ | https://www.nikoukei.co.jp/news/detail/7858'],
+['moe_1010014','安中市公式施設概要によれば1995年6月着工・1998年3月竣工・135t/24h（67.5t/24h×2炉）・安中市原市65。施工会社の直接証拠は未取得。','https://www.city.annaka.lg.jp/page/1728.html']];
+for(const [id,note,source]of items){const f=facilities.find(x=>x.id===id);if(!f)continue;f.builder_additional_research_note=[f.builder_additional_research_note,note].filter(Boolean).join(' ／ ');f.builder_additional_research_urls=[f.builder_additional_research_urls,source].filter(Boolean).join(' | ');if(!f.builder)f.builder_research_status='当初施工会社未確認（施設・後年改造工事を区別して調査）';}})();

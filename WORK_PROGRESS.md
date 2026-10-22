@@ -101,3 +101,15 @@
 - 西部クリーンセンター: https://www.tsgren.jp/jimu/generalwaste/jimu_shisetsu.html 1986年11月竣工・150t/日、2003年改修・2021年基幹改良。施工会社未確認。
 - 南部清掃工場: https://souma.city.hirosaki.aomori.jp/kankyoseibi/shisetsu/nanbu.html 1992年3月竣工・140t/日。施工会社未確認。
 実際の新規登録数はbuilder実行後の空欄→非空欄を照合して確定すること。batch74処理は空欄時のみ書込、既存を上書きしない。UI変更なし。
+
+## 2026-10-23 構造分離・UI変更（明示指示による）
+- ユーザーが構造改善とUI変更を明示許可。旧「UI変更しない」は今回の指示で更新。
+- index.html 2,649,697 bytes → 約9KB。既存47ブロックをassetsに内容完全一致・順序維持で分離。施設データの原本はassets/script-01.js。今後巨大HTMLをAPI取得・会話へ印字しない。
+- UI: 背景・余白・配色・操作ボタンを調整。詳細条件を初期折りたたみ。既存検索・ソート・ダッシュボード機能は維持。
+- 右下に「↻ 最新版」。スマホは公開サイトをSafariで開いて押す。GitHubへの更新はChatGPTで指示→コミット→Pages反映を待つ。ボタンは公開済み最新版の読込用であり、GitHubへの送信機能ではない。
+- assets変更後に `python scripts/version_assets.py` を実行。参照URLに内容ハッシュを付加し古いCSS/JSキャッシュを回避。
+- 検証: 既存47ブロック完全一致・JS構文OK。jsdom実行で全878施設レコードのJSONが変更前と完全一致、実行エラー0、検索候補表示、ランキング→施設詳細→戻るで元ランキング保持、詳細初期折りたたみ・最新版ボタン存在を確認。
+- Chromiumダウンロードが失敗し、ピクセル表示の実ブラウザ確認は未実施。jsdomはレイアウト検証を代替しない。
+- 実行時全施設878件、moe_から始まるID826件（builder有621、空205）。これは旧845施設台帳の単純件数とは一致しない。ID統合等の対応照合前に845母数の進捗率へ換算しない。
+- 新規調査はresearch/batch76.md（未登録10件、施工会社の新規確定0、builder更新0）。根拠URL・不採用理由を保存。
+- 今後の調査追記はresearch/batchNN.mdと小さなassets/builder-batchNN.jsに分離。index.htmlへ巨大データを再埋込しない。

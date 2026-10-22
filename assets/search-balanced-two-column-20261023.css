@@ -1,0 +1,17 @@
+
+/* Two-column, compact responsive filter layout; preserves search and sorting logic. */
+#sort-controls{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px!important;align-items:stretch!important;margin:12px 0!important}
+#sort-controls .nav-filter-field,#advanced-search .advanced-sort-label,#advanced-search #facility-refine label{display:flex!important;flex-direction:column;gap:5px;min-width:0;margin:0;font-size:.78rem;font-weight:700;color:#456072}
+#sort-controls select,#advanced-search select{box-sizing:border-box;width:100%!important;max-width:none!important;min-width:0!important;height:42px;padding:8px 10px;border:1px solid #cbd9df;border-radius:10px;background:#fff;color:#193b49;font-size:.88rem;text-overflow:ellipsis}
+#sort-controls .nav-filter-field{min-width:0}
+#sort-controls #sort-hint{display:none!important}
+#advanced-search{margin:0 0 16px;border:1px solid #dce5e9;border-radius:13px;overflow:hidden;background:#f7fafb;box-shadow:0 3px 14px #123b5008}
+#advanced-search summary{padding:12px 15px;font-weight:750;font-size:.86rem;cursor:pointer;color:#174d54}
+#advanced-search[open] summary{border-bottom:1px solid #e2ebee}
+#advanced-search .advanced-body{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px!important;padding:13px!important}
+#advanced-search #facility-refine{display:contents!important}
+#advanced-search #facility-refine .refine-title{display:none!important}
+#advanced-search #facility-refine button{grid-column:1/-1;justify-self:end;background:#e7f0f2;border:1px solid #d1e0e2;border-radius:9px;color:#234f56;padding:8px 14px;font-size:.8rem}
+#advanced-search .advanced-sort-label{max-width:none!important}
+#advanced-search label{min-width:0!important;flex-basis:auto!important}
+@media(max-width:560px){#sort-controls{gap:9px!important}#advanced-search .advanced-body{gap:10px!important}#sort-controls select,#advanced-search select{font-size:14px!important;padding:7px 7px!important}#advanced-search #facility-refine button{justify-self:stretch}}
