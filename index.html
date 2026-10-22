@@ -3239,8 +3239,8 @@ function searchAndShow(q,selectedFacilityId='',selectedMunicipalityCode='',skipH
  const scope=document.getElementById('sort-scope').value,sortMode=validSortForScope(scope,document.getElementById('sort-order').value),pref=document.getElementById('prefecture-filter').value,query=norm(q);
  let m=[],fs=[];let browse=false;
  if(scope==='municipalities'){browse=true;m=rows.filter(r=>!pref||r.prefecture===pref);if(query)m=m.filter(r=>norm(cityLabel(r)).includes(query)||norm(r.municipality).includes(query))}
- else if(scope==='facilities'){browse=true;fs=facilities.filter(f=>(!pref||facilityPrefecture(f)===pref)&&(!query||norm(f.name).includes(query)||(f.aliases||[]).some(alias=>norm(alias).includes(query))))}
- else {m=query?find(q).filter(r=>!pref||r.prefecture===pref):[];fs=query?facilities.filter(f=>(!pref||facilityPrefecture(f)===pref)&&(norm(f.name).includes(query)||(f.aliases||[]).some(alias=>norm(alias).includes(query)))):[]}
+ else if(scope==='facilities'){browse=true;fs=facilities.filter(f=>(!pref||facilityPrefecture(f)===pref)&&(!query||norm(f.name).includes(query)||(f.aliases||[]).some(alias=>norm(alias).includes(query))||norm(f.builder||'').toLowerCase().includes(query.toLowerCase())||norm(f.plant_builder_verified||'').toLowerCase().includes(query.toLowerCase())))}
+ else {m=query?find(q).filter(r=>!pref||r.prefecture===pref):[];fs=query?facilities.filter(f=>(!pref||facilityPrefecture(f)===pref)&&(norm(f.name).includes(query)||(f.aliases||[]).some(alias=>norm(alias).includes(query))||norm(f.builder||'').toLowerCase().includes(query.toLowerCase())||norm(f.plant_builder_verified||'').toLowerCase().includes(query.toLowerCase()))):[]}
  if(scope!=='municipalities'&&!selectedFacilityId){
   const cap=document.getElementById('facility-capacity-filter')?.value||'all';
   const age=document.getElementById('facility-age-filter')?.value||'all';
