@@ -3241,6 +3241,26 @@ function searchAndShow(q,selectedFacilityId='',selectedMunicipalityCode='',skipH
  if(scope==='municipalities'){browse=true;m=rows.filter(r=>!pref||r.prefecture===pref);if(query)m=m.filter(r=>norm(cityLabel(r)).includes(query)||norm(r.municipality).includes(query))}
  else if(scope==='facilities'){browse=true;fs=facilities.filter(f=>(!pref||facilityPrefecture(f)===pref)&&(!query||norm(f.name).includes(query)||(f.aliases||[]).some(alias=>norm(alias).includes(query))))}
  else {m=query?find(q).filter(r=>!pref||r.prefecture===pref):[];fs=query?facilities.filter(f=>(!pref||facilityPrefecture(f)===pref)&&(norm(f.name).includes(query)||(f.aliases||[]).some(alias=>norm(alias).includes(query)))):[]}
+ if(scope!=='municipalities'&&!selectedFacilityId){
+  const cap=document.getElementById('facility-capacity-filter')?.value||'all';
+  const age=document.getElementById('facility-age-filter')?.value||'all';
+  const op=document.getElementById('facility-operation-filter')?.value||'all';
+  if(cap!=='all'||age!=='all'||op!=='all'){
+   fs=fs.filter(f=>{
+    const n=Number(String(f.capacity_tpd||'').replace(/,/g,''));
+    if(cap!=='all'&&(!Number.isFinite(n)||n<=0||(cap==='under'&&n>=100)||(cap==='over'&&n<100)))return false;
+    const a=facilityAge(f);
+    if(age!=='all'&&(!a||(age==='under'&&a.years>=15)||(age==='over'&&a.years<15)))return false;
+    if(op!=='all'){
+     const mode=String(f.process||'').replace(/\s/g,'');
+     const continuous=/全連続|准連続|準連続|連続運転|連続燃焼/.test(mode);
+     const batch=/バッチ|間欠|機械化バッチ|固定バッチ/.test(mode);
+     if(op==='continuous'&&!continuous||op==='intermittent'&&!batch)return false;
+    }
+    return true;
+   });
+  }
+ }
  const chosenCity=!!selectedMunicipalityCode&&m.length===1&&m[0].municipality_code===selectedMunicipalityCode;const maxCandidates=browse?visibleNationalCount:Infinity;
  if(!selected&&!chosenCity&&(m.length+fs.length)>0){
   const orderedCities=sortCities(m,sortMode).slice(0,maxCandidates);
@@ -4647,4 +4667,14 @@ for(const [id,value,label] of [['prefecture-filter','','都道府県を全国に
 })();
 </script>
 
-</body></html>
+<style id="facility-refine-css">#facility-refine{display:flex;gap:10px;align-items:end;flex-wrap:wrap;padding:15px 18px;margin:12px 0 16px;border:1px solid #cddde8;border-radius:14px;background:linear-gradient(120deg,#f3f8fc,#eaf4f3);box-shadow:0 3px 15px #123b5008}#facility-refine .refine-title{width:100%;font-weight:800;color:#123b50;font-size:.89rem}#facility-refine label{display:flex;flex-direction:column;gap:5px;flex:1 1 175px;font-size:.8rem;font-weight:700;color:#315166}#facility-refine select{width:100%;min-height:40px;padding:7px 10px;border:1px solid #aec5d3;border-radius:9px;background:white;color:#123b50;font-size:.9rem}#facility-refine button{padding:10px 15px;border-radius:9px;background:#e0eaf0;color:#173e50;border:1px solid #b8d0dc;font-size:.82rem}@media(max-width:570px){#facility-refine{padding:12px}#facility-refine label{flex-basis:100%}}</style>
+<script id="facility-refine-module">(()=>{
+ const anchor=document.getElementById('sort-controls');if(!anchor)return;
+ const panel=document.createElement('section');panel.id='facility-refine';
+ panel.innerHTML='<div class="refine-title">▦ 施設を詳しく絞り込む</div><label>処理能力<select id="facility-capacity-filter"><option value="all">すべて</option><option value="under">100t/日未満</option><option value="over">100t/日以上</option></select></label><label>稼働年数<select id="facility-age-filter"><option value="all">すべて</option><option value="under">15年未満</option><option value="over">15年以上</option></select></label><label>運転方式<select id="facility-operation-filter"><option value="all">すべて</option><option value="continuous">連続運転（全連続・准連続）</option><option value="intermittent">間欠運転（バッチ式）</option></select></label><button type="button" id="facility-refine-clear">条件をクリア</button>';
+ anchor.after(panel);
+ const controls=[...panel.querySelectorAll('select')];
+ controls.forEach(el=>el.addEventListener('change',()=>{document.getElementById('sort-scope').value='facilities';updateSortUI();runSearch()}));
+ panel.querySelector('button').addEventListener('click',()=>{controls.forEach(el=>el.value='all');runSearch()});
+ document.getElementById('home-button').addEventListener('click',()=>controls.forEach(el=>el.value='all'));
+})();</script></body></html>
