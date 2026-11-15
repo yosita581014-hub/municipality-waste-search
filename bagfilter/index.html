@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>ろ過式集じん器｜動作・制御シミュレーター</title>
+<title>ろ過式集じん器｜動作・制御シミュレーター v5</title>
 <style>
 :root{font-family:system-ui,-apple-system,"Hiragino Kaku Gothic ProN",Meiryo,sans-serif;color:#183044;background:#eef4f8}
 *{box-sizing:border-box}body{margin:0}.wrap{max-width:1040px;margin:auto;padding:15px}h1{font-size:clamp(20px,4vw,30px);margin:5px 0}p{line-height:1.65}small,.sub{color:#526a79}.panel{background:white;border:1px solid #cbdbe6;border-radius:13px;padding:14px;margin:12px 0;box-shadow:0 1px 3px #abc3d033}
@@ -16,41 +16,41 @@ svg .glow{animation:flash .55s ease-in-out infinite alternate}
 @media(max-width:640px){.wrap{padding:9px}.panel{padding:10px}.steps{grid-template-columns:repeat(4,1fr)}.stat strong{font-size:16px}.two{grid-template-columns:1fr}svg .tag text{font-size:14px}}
 </style></head>
 <body><div class="wrap">
-<header><h1>ろ過式集じん器｜動作・制御シミュレーター</h1><div class="sub">焼却施設・パルスジェット式バグフィルタ｜操作型教材</div></header>
+<header><h1>ろ過式集じん器｜動作・制御シミュレーター</h1><div class="sub">焼却施設・パルスジェット式バグフィルタ｜操作型教材　<span id="buildmark" style="color:#006584;font-weight:bold">v5</span></div><p id="runtime" style="font-size:13px;color:#8a3c20">操作プログラムを読み込み中…</p></header>
 <div class="stats">
 <div class="stat"><small>ろ布差圧（模擬）</small><strong id="dp">0.80 kPa</strong></div>
 <div class="stat"><small>逆洗パルス弁</small><strong id="valve">閉</strong></div>
 <div class="stat"><small>ダスト付着</small><strong id="cake">少</strong></div>
 </div>
 <section class="panel"><strong>設備断面と動作</strong><p class="hint">タップできる機器名を配置。工程によって強調箇所と実際の動作が切り替わります。</p>
-<svg id="scene" viewBox="0 0 940 460" role="img" aria-label="ろ過式集じん器の断面と誘引通風機の遠心羽根車">
+<svg id="scene" viewBox="0 0 940 570" role="img" aria-label="ろ過式集じん器の断面と誘引通風機の遠心羽根車">
 <defs><clipPath id="fanclip"><circle cx="735" cy="166" r="31"/></clipPath><marker id="arrO" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0 0L6 3L0 6Z" fill="#f4aa51"/></marker><marker id="arrB" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0 0L6 3L0 6Z" fill="#55d8ec"/></marker></defs>
 <!-- Body / dirty inlet / clean upper chamber -->
-<path d="M120 115H607V332L548 413H179L120 332Z" fill="#233e53" stroke="#9fbed1" stroke-width="3"/>
-<rect x="123" y="118" width="481" height="75" fill="#145775" opacity=".85"/>
-<path d="M122 194H605" stroke="#d6e7f1" stroke-width="8"/>
-<path d="M8 260H120V303H8Z" fill="#6c4c38" stroke="#dab181" stroke-width="2"/>
-<path class="flow dirty" d="M16 282H112" marker-end="url(#arrO)"/>
-<g id="dirtyflow"><path class="flow dirty" d="M138 283H196 M265 284H314 M385 283H432 M507 283H568"/></g>
+<path d="M166 100H560V415L511 517H215L166 415Z" fill="#233e53" stroke="#9fbed1" stroke-width="3"/>
+<rect x="169" y="103" width="388" height="75" fill="#145775" opacity=".85"/>
+<path d="M168 180H558" stroke="#d6e7f1" stroke-width="8"/>
+<path d="M55 315H166V358H55Z" fill="#6c4c38" stroke="#dab181" stroke-width="2"/>
+<path class="flow dirty" d="M61 338H159" marker-end="url(#arrO)"/>
+<g id="dirtyflow"><path class="flow dirty" d="M174 338H212 M281 338H314 M389 338H422 M495 338H538"/></g>
 <!-- bags: four independent rows/illustrative section -->
 <g id="bags"></g>
 <g id="fallgroup" style="display:none" fill="#f6ac61">
-<circle class="dustfall" cx="224" cy="337" r="5"/><circle class="dustfall" cx="255" cy="344" r="4"/><circle class="dustfall" cx="302" cy="336" r="5"/><circle class="dustfall" cx="342" cy="342" r="4"/><circle class="dustfall" cx="390" cy="336" r="4"/>
+<circle class="dustfall" cx="224" cy="411" r="5"/><circle class="dustfall" cx="255" cy="424" r="4"/><circle class="dustfall" cx="302" cy="410" r="5"/><circle class="dustfall" cx="342" cy="425" r="4"/><circle class="dustfall" cx="390" cy="417" r="4"/>
 </g>
 <!-- compressed air system -->
-<path d="M170 67H521" stroke="#5087a2" stroke-width="18" stroke-linecap="round"/>
+<path d="M180 57H524" stroke="#5087a2" stroke-width="18" stroke-linecap="round"/>
 <rect id="pulseValve" x="235" y="49" width="47" height="36" rx="5" fill="#4e5269" stroke="#c5a4f1" stroke-width="2"/>
 <rect id="solenoid" x="247" y="21" width="24" height="20" rx="3" fill="#62768b" stroke="#d9e8f4"/>
-<path d="M259 41V49M259 85V102H540" stroke="#c3a0e3" stroke-width="7" fill="none"/>
-<g stroke="#c3a0e3" stroke-width="5"><path d="M214 102V121M317 102V121M420 102V121M523 102V121"/></g>
-<g id="jet" style="display:none"><path class="flow air" d="M214 123V325"/></g>
+<path d="M259 41V49M259 85V92H526" stroke="#c3a0e3" stroke-width="7" fill="none"/>
+<g stroke="#c3a0e3" stroke-width="5"><path d="M214 92V111M317 92V111M420 92V111M523 92V111"/></g>
+<g id="jet" style="display:none"><path class="flow air" d="M214 112V384"/></g>
 <!-- Controller signal -->
 <rect x="18" y="17" width="134" height="48" rx="6" fill="#2d5068" stroke="#a0bccf"/>
 <text x="85" y="38" text-anchor="middle" font-weight="bold">逆洗制御盤</text><text x="85" y="55" font-size="10" text-anchor="middle">差圧・タイマー</text>
 <path id="signal" d="M152 40H209V30H247" fill="none" stroke="#688295" stroke-dasharray="5 5" stroke-width="3"/>
 <!-- Clean gas to outlet -->
-<path d="M605 143H665V180H605Z" fill="#205670" stroke="#a7c5d5" stroke-width="2"/>
-<path class="flow clean" d="M579 159H650" marker-end="url(#arrB)"/>
+<path d="M560 130H665V167H560Z" fill="#205670" stroke="#a7c5d5" stroke-width="2"/>
+<path class="flow clean" d="M569 148H650" marker-end="url(#arrB)"/>
 <!-- Centrifugal ID fan: schematic of axial inlet, scroll volute, tangential discharge -->
 <g id="fanbody">
 <path d="M705 148C705 110 770 105 791 146C807 174 790 201 768 209L770 234H832V198H799C810 180 813 142 790 122C752 87 691 111 686 160C683 198 709 219 742 216" fill="#294d64" stroke="#9dc3d7" stroke-width="3"/>
@@ -65,17 +65,17 @@ svg .glow{animation:flash .55s ease-in-out infinite alternate}
 <!-- Rotary discharge -->
 <rect x="710" y="330" width="60" height="60" rx="7" fill="#2d526a" stroke="#a8c7d8" stroke-width="2"/>
 <g class="rotor"><circle cx="740" cy="360" r="23" fill="#15354a" stroke="#96c8d9"/><path d="M718 360H762M740 338V382M725 345L755 375M755 345L725 375" stroke="#8bd4e6" stroke-width="5"/></g>
-<path class="flow dirty" d="M740 394V448"/>
+<path class="flow dirty" d="M740 394V495"/>
 <!-- animated attention box -->
-<rect id="focus" x="120" y="195" width="480" height="152" rx="6" fill="none" stroke="#ffdc79" stroke-width="3" stroke-dasharray="10 8" pointer-events="none"/>
-<g class="tag" data-device="inlet" transform="translate(12 225)"><rect width="113" height="28" rx="5"/><text x="56" y="18" text-anchor="middle">排ガス入口</text></g>
+<rect id="focus" x="167" y="183" width="390" height="260" rx="6" fill="none" stroke="#ffdc79" stroke-width="3" stroke-dasharray="10 8" pointer-events="none"/>
+<g class="tag" data-device="inlet" transform="translate(29 277)"><rect width="113" height="28" rx="5"/><text x="56" y="18" text-anchor="middle">排ガス入口</text></g>
 <g class="tag" data-device="controller" transform="translate(12 81)"><rect width="125" height="28" rx="5"/><text x="62" y="18" text-anchor="middle">逆洗制御盤</text></g>
 <g class="tag" data-device="valve" transform="translate(297 31)"><rect width="119" height="28" rx="5"/><text x="59" y="18" text-anchor="middle">電磁弁・主弁</text></g>
 <g class="tag" data-device="header" transform="translate(443 34)"><rect width="123" height="28" rx="5"/><text x="61" y="18" text-anchor="middle">エアヘッダ</text></g>
 <g class="tag" data-device="nozzle" transform="translate(388 111)"><rect width="162" height="28" rx="5"/><text x="81" y="18" text-anchor="middle">噴射管・ノズル</text></g>
-<g class="tag" data-device="clean" transform="translate(143 142)"><rect width="93" height="28" rx="5"/><text x="46" y="18" text-anchor="middle">清浄室</text></g>
-<g class="tag" data-device="bags" transform="translate(273 248)"><rect width="145" height="30" rx="5"/><text x="72" y="19" text-anchor="middle">ろ布・リテーナ</text></g>
-<g class="tag" data-device="hopper" transform="translate(215 369)"><rect width="93" height="28" rx="5"/><text x="46" y="18" text-anchor="middle">ホッパ</text></g>
+<g class="tag" data-device="clean" transform="translate(174 123)"><rect width="93" height="28" rx="5"/><text x="46" y="18" text-anchor="middle">清浄室</text></g>
+<g class="tag" data-device="bags" transform="translate(295 313)"><rect width="145" height="30" rx="5"/><text x="72" y="19" text-anchor="middle">ろ布・リテーナ</text></g>
+<g class="tag" data-device="hopper" transform="translate(238 460)"><rect width="93" height="28" rx="5"/><text x="46" y="18" text-anchor="middle">ホッパ</text></g>
 <g class="tag" data-device="rotary" transform="translate(783 358)"><rect width="143" height="28" rx="5"/><text x="71" y="18" text-anchor="middle">ロータリーバルブ</text></g>
 <g class="tag" data-device="fan" transform="translate(680 264)"><rect width="145" height="28" rx="5"/><text x="72" y="18" text-anchor="middle">誘引通風機（IDF）</text></g>
 <g class="tag" data-device="dp" transform="translate(18 133)"><rect width="81" height="28" rx="5"/><text x="40" y="18" text-anchor="middle">差圧計</text></g>
@@ -93,14 +93,15 @@ svg .glow{animation:flash .55s ease-in-out infinite alternate}
 <p class="note">教育用モデル。28秒の工程表示・差圧値・逆洗時間は実機の設定値ではありません。実際の逆洗は対象列ごとに短時間行い、他列ではろ過を継続します。機器構成はプラントにより異なります。</p>
 </div><script>
 (function(){
+try {
 const $=id=>document.getElementById(id),ns="http://www.w3.org/2000/svg";
 const phases=[
-["排ガス流入","誘引通風機が連続運転し、含じんガスがろ過室に入る。","入口から内部へ向かうオレンジの流れ。",.8,"閉","少",[5,244,220,77],"inlet"],
-["ろ過・捕集","ガスはろ布の外側から内側へ通過。ばいじんは外面に蓄積し、清浄ガスは上部へ流れる。","ろ布外面のオレンジのダスト層が成長。",.9,"閉","増加",[154,191,434,173],"bags"],
+["排ガス流入","誘引通風機が連続運転し、含じんガスがろ過室に入る。","入口から内部へ向かうオレンジの流れ。",.8,"閉","少",[52,306,190,68],"inlet"],
+["ろ過・捕集","ガスはろ布の外側から内側へ通過。ばいじんは外面に蓄積し、清浄ガスは上部へ流れる。","ろ布外面のオレンジのダスト層が成長。",.9,"閉","増加",[169,180,389,265],"bags"],
 ["差圧上昇","ダスト層が増え、通気抵抗が上昇。設定条件に達すると逆洗要求が成立する。","差圧表示が上がり、制御盤に注目。",1.5,"閉","多",[10,10,153,108],"dp"],
-["逆洗指令","制御盤が対象列の電磁弁を励磁。パイロット回路が切り替わり主弁が開動作へ移る。","電磁弁と信号線が点灯。",1.5,"開指令","多",[198,13,225,100],"valve"],
-["パルス逆洗","主弁の急開で圧縮空気が噴射管から対象列に流入。ろ布が変形してダストを剥離。","紫の噴射は左端の対象列のみ。他列はろ過継続。",1.3,"瞬間開","剥離",[170,110,101,256],"nozzle"],
-["ダスト落下","剥離したダストがホッパに落下。ろ過を再開した対象列の抵抗が低下する。","ダスト粒子が下へ落ち、対象列の付着層が減る。",1.05,"閉","減少",[173,210,380,201],"hopper"],
+["逆洗指令","制御盤が対象列の電磁弁を励磁。パイロット回路が切り替わり主弁が開動作へ移る。","電磁弁と信号線が点灯。",1.5,"開指令","多",[205,13,215,105],"valve"],
+["パルス逆洗","主弁の急開で圧縮空気が噴射管から対象列に流入。ろ布が変形してダストを剥離。","紫の噴射は左端の対象列のみ。他列はろ過継続。",1.3,"瞬間開","剥離",[181,98,91,343],"nozzle"],
+["ダスト落下","剥離したダストがホッパに落下。ろ過を再開した対象列の抵抗が低下する。","ダスト粒子が下へ落ち、対象列の付着層が減る。",1.05,"閉","減少",[175,343,365,175],"hopper"],
 ["排灰・安定","ホッパからダストを回収。差圧が安定し次の逆洗判定を待つ。","排灰用ロータリーバルブが回転。",.82,"閉","少",[701,324,85,81],"rotary"]
 ];
 const devices={
@@ -116,7 +117,7 @@ hopper:["ホッパ","剥離・落下したダストを集める。","捕集・�
 rotary:["ロータリーバルブ","回転羽根でダストを排出し気密性を維持する。","このモデルでは連続運転。実設備は方式に依存。","噛み込み・摩耗"],
 fan:["誘引通風機（IDF）","遠心式羽根車の中心側から軸方向に吸込み、遠心方向へ加速、スクロールケーシングで集めて接線方向に吐出する。","排ガス処理系統の運転中は原則連続運転。","振動・軸受・風量・ダンパ"]
 };
-const bg=$("bags");for(let i=0;i<4;i++){let x=188+i*103,g=document.createElementNS(ns,"g");g.setAttribute("data-bag",i);g.innerHTML='<path d="M'+x+' 200H'+(x+51)+'V335Q'+(x+25)+' 350 '+x+' 335Z" fill="#c3d6df" stroke="#ecf7fc" stroke-width="2"/><path d="M'+(x+10)+' 207V330 M'+(x+25)+' 207V341 M'+(x+40)+' 207V330" stroke="#7192a4" stroke-dasharray="4 4" fill="none"/><path class="cake" d="M'+(x-4)+' 203V335Q'+(x+25)+' 356 '+(x+55)+' 335V203" fill="none" stroke="#f1a85a" stroke-width="6" stroke-dasharray="4 5"/><path class="flow clean" d="M'+(x+25)+' 318V207"/>';bg.appendChild(g)}
+const bg=$("bags");for(let i=0;i<4;i++){let x=189+i*93,g=document.createElementNS(ns,"g");g.setAttribute("data-bag",i);g.innerHTML='<path d="M'+x+' 186H'+(x+51)+'V414Q'+(x+25)+' 432 '+x+' 414Z" fill="#c3d6df" stroke="#ecf7fc" stroke-width="2"/><path d="M'+(x+10)+' 195V406 M'+(x+25)+' 195V420 M'+(x+40)+' 207V330" stroke="#7192a4" stroke-dasharray="4 4" fill="none"/><path class="cake" d="M'+(x-4)+' 189V414Q'+(x+25)+' 438 '+(x+55)+' 414V189" fill="none" stroke="#f1a85a" stroke-width="6" stroke-dasharray="4 5"/><path class="flow clean" d="M'+(x+25)+' 396V192"/>';bg.appendChild(g)}
 let time=0,playing=false,speed=1,last=0,current=-1,selected="bags";
 function choose(k){selected=k;let d=devices[k];$("devtitle").textContent=d[0];$("devdesc").textContent=d[1];$("devwhen").textContent=d[2];$("devcheck").textContent=d[3];document.querySelectorAll("[data-device]").forEach(n=>n.classList.toggle("selected",n.dataset.device===k));document.querySelectorAll("[data-devbutton]").forEach(n=>n.classList.toggle("active",n.dataset.devbutton===k))}
 Object.entries(devices).forEach(([k,v])=>{let b=document.createElement("button");b.textContent=v[0];b.dataset.devbutton=k;b.onclick=()=>choose(k);$("devices").appendChild(b)});
@@ -138,6 +139,7 @@ document.querySelectorAll("#steps button").forEach((b,j)=>b.classList.toggle("ac
 $("play").onclick=()=>{playing=!playing;last=0;render(false)};$("next").onclick=()=>{time=((Math.floor(time/4)+1)%7)*4;playing=false;render(true)};$("reset").onclick=()=>{time=0;playing=false;render(true)};$("speed").onclick=()=>{speed=speed===1?1.5:speed===1.5?.5:1;$("speed").textContent="速度 ×"+speed};
 $("seek").oninput=e=>{time=Number(e.target.value)/10;playing=false;render(true)};
 function tick(ts){if(playing&&last){time+=Math.min((ts-last)/1000,.1)*speed;if(time>=28)time=0;render(false)}last=ts;requestAnimationFrame(tick)}
-render(true);requestAnimationFrame(tick);
+$("runtime").textContent="操作プログラム：起動済み（v5）";$("runtime").style.color="#087c55";render(true);requestAnimationFrame(tick);
+} catch(e){const p=document.getElementById("runtime");if(p){p.textContent="動作エラー："+e.message;p.style.color="#b42318"}console.error(e)}
 })();
 </script></body></html>
