@@ -14,9 +14,9 @@ svg .glow{animation:flash .55s ease-in-out infinite alternate}
 .paused svg *{animation-play-state:paused!important}@keyframes move{to{stroke-dashoffset:-46}}@keyframes spin{to{transform:rotate(360deg)}}@keyframes fall{0%{transform:translateY(-13px);opacity:0}20%{opacity:1}100%{transform:translateY(95px);opacity:0}}@keyframes flash{to{opacity:.3}}@keyframes swell{to{transform:scaleX(1.13)}}
 .legend{display:flex;flex-wrap:wrap;gap:12px;color:#425b6a;font-size:12px;margin:8px 0}.explain{background:#eaf3f7;border-left:4px solid #086183;padding:11px 14px;border-radius:6px}.devices{display:flex;flex-wrap:wrap;gap:6px}.devices button{font-size:12px;padding:7px}.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}.detail h3{margin:0 0 7px}.detail p{margin:6px 0}.hint{font-size:12px;color:#617684}.note{font-size:12px;color:#5d7180}
 @media(max-width:640px){.wrap{padding:9px}.panel{padding:10px}.steps{grid-template-columns:repeat(4,1fr)}.stat strong{font-size:16px}.two{grid-template-columns:1fr}svg .tag text{font-size:14px}}
-</style></head>
+svg #peelingAsh{fill:#ffb35e}svg .ash-stream{animation:peelAsh 1.7s linear infinite;transform-box:fill-box}svg .ash-delayed{animation-delay:-.85s}svg #hopperAsh{fill:#ffba6e}svg .ash-drop{animation:peelAsh 1.4s linear infinite}@keyframes peelAsh{0%{transform:translateY(0);opacity:0}12%{opacity:1}82%{opacity:1}100%{transform:translateY(90px);opacity:0}}</style></head>
 <body><div class="wrap">
-<header><h1>ろ過式集じん器｜動作・制御シミュレーター</h1><div class="sub">焼却施設・パルスジェット式バグフィルタ｜操作型教材　<span id="buildmark" style="color:#006584;font-weight:bold">v7</span></div><p id="runtime" style="font-size:13px;color:#8a3c20">操作プログラムを読み込み中…</p></header>
+<header><h1>ろ過式集じん器｜動作・制御シミュレーター</h1><div class="sub">焼却施設・パルスジェット式バグフィルタ｜操作型教材　<span id="buildmark" style="color:#006584;font-weight:bold">v9</span></div><p id="runtime" style="font-size:13px;color:#8a3c20">操作プログラムを読み込み中…</p></header>
 <div class="stats">
 <div class="stat"><small>ろ布差圧（模擬）</small><strong id="dp">0.80 kPa</strong></div>
 <div class="stat"><small>逆洗パルス弁</small><strong id="valve">閉</strong></div>
@@ -36,6 +36,22 @@ svg .glow{animation:flash .55s ease-in-out infinite alternate}
 <g id="bags"><g data-bag="0"><path d="M189 186H240V414Q214 432 189 414Z" fill="#c3d6df" stroke="#ecf7fc" stroke-width="2"/><path d="M199 195V406 M214 195V420 M229 195V406" stroke="#7192a4" stroke-dasharray="4 4" fill="none"/><path class="cake" d="M185 189V414Q214 438 244 414V189" fill="none" stroke="#f1a85a" stroke-width="6" stroke-dasharray="4 5" opacity=".25"/><path class="flow clean" d="M214 396V192"/></g><g data-bag="1"><path d="M282 186H333V414Q307 432 282 414Z" fill="#c3d6df" stroke="#ecf7fc" stroke-width="2"/><path d="M292 195V406 M307 195V420 M322 195V406" stroke="#7192a4" stroke-dasharray="4 4" fill="none"/><path class="cake" d="M278 189V414Q307 438 337 414V189" fill="none" stroke="#f1a85a" stroke-width="6" stroke-dasharray="4 5" opacity=".25"/><path class="flow clean" d="M307 396V192"/></g><g data-bag="2"><path d="M375 186H426V414Q400 432 375 414Z" fill="#c3d6df" stroke="#ecf7fc" stroke-width="2"/><path d="M385 195V406 M400 195V420 M415 195V406" stroke="#7192a4" stroke-dasharray="4 4" fill="none"/><path class="cake" d="M371 189V414Q400 438 430 414V189" fill="none" stroke="#f1a85a" stroke-width="6" stroke-dasharray="4 5" opacity=".25"/><path class="flow clean" d="M400 396V192"/></g><g data-bag="3"><path d="M468 186H519V414Q493 432 468 414Z" fill="#c3d6df" stroke="#ecf7fc" stroke-width="2"/><path d="M478 195V406 M493 195V420 M508 195V406" stroke="#7192a4" stroke-dasharray="4 4" fill="none"/><path class="cake" d="M464 189V414Q493 438 523 414V189" fill="none" stroke="#f1a85a" stroke-width="6" stroke-dasharray="4 5" opacity=".25"/><path class="flow clean" d="M493 396V192"/></g></g>
 <g id="fallgroup" style="display:none" fill="#f6ac61">
 <circle class="dustfall" cx="224" cy="411" r="5"/><circle class="dustfall" cx="255" cy="424" r="4"/><circle class="dustfall" cx="302" cy="410" r="5"/><circle class="dustfall" cx="342" cy="425" r="4"/><circle class="dustfall" cx="390" cy="417" r="4"/>
+</g>
+<g id="peelingAsh" style="display:none" pointer-events="none">
+  <path d="M185 217V402 M244 217V402" fill="none" stroke="#f4ad56" stroke-width="3" stroke-dasharray="5 9" opacity=".7"/>
+  <g class="ash-stream">
+    <circle cx="184" cy="252" r="6"/><circle cx="246" cy="270" r="6"/>
+    <circle cx="180" cy="300" r="4"/><circle cx="249" cy="321" r="5"/>
+    <circle cx="181" cy="348" r="5"/><circle cx="246" cy="364" r="4"/>
+  </g>
+  <g class="ash-stream ash-delayed">
+    <circle cx="183" cy="242" r="4"/><circle cx="248" cy="298" r="5"/>
+    <circle cx="179" cy="336" r="4"/><circle cx="250" cy="392" r="6"/>
+  </g>
+</g>
+<g id="hopperAsh" style="display:none" pointer-events="none">
+  <path d="M203 472Q285 477 364 472" stroke="#f4ad56" stroke-width="10" stroke-linecap="round" fill="none" opacity=".9"/>
+  <circle class="ash-drop" cx="220" cy="436" r="5"/><circle class="ash-drop ash-delayed" cx="260" cy="449" r="4"/><circle class="ash-drop" cx="316" cy="438" r="5"/>
 </g>
 <!-- compressed air system -->
 <path d="M180 57H524" stroke="#5087a2" stroke-width="18" stroke-linecap="round"/>
@@ -130,7 +146,7 @@ let dp=p[3];if(i===1)dp=.8+.1*f;if(i===2)dp=.9+.6*f;if(i===5)dp=1.3-.25*f;if(i==
 $("dp").textContent=dp.toFixed(2)+" kPa";$("valve").textContent=p[4];$("cake").textContent=p[5];$("clock").textContent=time.toFixed(1)+" 秒 / 28.0 秒";$("seek").value=Math.floor(time*10);
 $("play").textContent=playing?"❚❚ 一時停止":"▶ 再生";document.body.classList.toggle("paused",!playing);
 let r=$("focus");["x","y","width","height"].forEach((a,j)=>r.setAttribute(a,p[6][j]));
-$("jet").style.display=i===4?"":"none";$("fallgroup").style.display=i===5?"":"none";
+$("jet").style.display=i===4?"":"none";$("fallgroup").style.display=i===5?"":"none";$("peelingAsh").style.display=(i===4||i===5)?"":"none";$("hopperAsh").style.display=(i===4||i===5)?"":"none";
 $("solenoid").setAttribute("fill",i===3||i===4?"#f2b854":"#62768b");$("pulseValve").setAttribute("fill",i===4?"#a975d0":"#4e5269");
 $("signal").setAttribute("stroke",i===3?"#ffd078":"#688295");$("signal").setAttribute("class",i===3?"glow":"");
 bg.querySelectorAll("[data-bag]").forEach((g,j)=>{g.setAttribute("class",i===4&&j===0?"bag-pulse":"");let opacity=i===0?.22:i===1?.22+.73*f:i<=4?.95:i===5&&j===0?.95-.77*f:.2;g.querySelector(".cake").setAttribute("opacity",opacity)});
@@ -139,7 +155,7 @@ document.querySelectorAll("#steps button").forEach((b,j)=>b.classList.toggle("ac
 $("play").onclick=()=>{playing=!playing;last=0;render(false)};$("next").onclick=()=>{time=((Math.floor(time/4)+1)%7)*4;playing=false;render(true)};$("reset").onclick=()=>{time=0;playing=false;render(true)};$("speed").onclick=()=>{speed=speed===1?1.5:speed===1.5?.5:1;$("speed").textContent="速度 ×"+speed};
 $("seek").oninput=e=>{time=Number(e.target.value)/10;playing=false;render(true)};
 function tick(ts){if(playing&&last){time+=Math.min((ts-last)/1000,.1)*speed;if(time>=28)time=0;render(false)}last=ts;requestAnimationFrame(tick)}
-$("runtime").textContent="操作プログラム：起動済み（v7）";$("runtime").style.color="#087c55";render(true);requestAnimationFrame(tick);
+$("runtime").textContent="操作プログラム：起動済み（v9）";$("runtime").style.color="#087c55";render(true);requestAnimationFrame(tick);
 } catch(e){const p=document.getElementById("runtime");if(p){p.textContent="動作エラー："+e.message;p.style.color="#b42318"}console.error(e)}
 })();
 </script></body></html>
