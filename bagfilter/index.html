@@ -14,9 +14,9 @@ svg .glow{animation:flash .55s ease-in-out infinite alternate}
 .paused svg *{animation-play-state:paused!important}@keyframes move{to{stroke-dashoffset:-46}}@keyframes spin{to{transform:rotate(360deg)}}@keyframes fall{0%{transform:translateY(-13px);opacity:0}20%{opacity:1}100%{transform:translateY(95px);opacity:0}}@keyframes flash{to{opacity:.3}}@keyframes swell{to{transform:scaleX(1.13)}}
 .legend{display:flex;flex-wrap:wrap;gap:12px;color:#425b6a;font-size:12px;margin:8px 0}.explain{background:#eaf3f7;border-left:4px solid #086183;padding:11px 14px;border-radius:6px}.devices{display:flex;flex-wrap:wrap;gap:6px}.devices button{font-size:12px;padding:7px}.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}.detail h3{margin:0 0 7px}.detail p{margin:6px 0}.hint{font-size:12px;color:#617684}.note{font-size:12px;color:#5d7180}
 @media(max-width:640px){.wrap{padding:9px}.panel{padding:10px}.steps{grid-template-columns:repeat(4,1fr)}.stat strong{font-size:16px}.two{grid-template-columns:1fr}svg .tag text{font-size:14px}}
-svg #peelingAsh{fill:#ffb35e}svg .ash-stream{animation:peelAsh 1.7s linear infinite;transform-box:fill-box}svg .ash-delayed{animation-delay:-.85s}svg #hopperAsh{fill:#ffba6e}svg .ash-drop{animation:peelAsh 1.4s linear infinite}@keyframes peelAsh{0%{transform:translateY(0);opacity:0}12%{opacity:1}82%{opacity:1}100%{transform:translateY(90px);opacity:0}}</style></head>
+svg #materialFlows circle{filter:drop-shadow(0 0 2px currentColor)}svg #peelingAsh{fill:#ffb35e}svg .ash-stream{animation:peelAsh 1.7s linear infinite;transform-box:fill-box}svg .ash-delayed{animation-delay:-.85s}svg #hopperAsh{fill:#ffba6e}svg .ash-drop{animation:peelAsh 1.4s linear infinite}@keyframes peelAsh{0%{transform:translateY(0);opacity:0}12%{opacity:1}82%{opacity:1}100%{transform:translateY(90px);opacity:0}}</style></head>
 <body><div class="wrap">
-<header><h1>ろ過式集じん器｜動作・制御シミュレーター</h1><div class="sub">焼却施設・パルスジェット式バグフィルタ｜操作型教材　<span id="buildmark" style="color:#006584;font-weight:bold">v9</span></div><p id="runtime" style="font-size:13px;color:#8a3c20">操作プログラムを読み込み中…</p></header>
+<header><h1>ろ過式集じん器｜動作・制御シミュレーター</h1><div class="sub">焼却施設・パルスジェット式バグフィルタ｜操作型教材　<span id="buildmark" style="color:#006584;font-weight:bold">v10</span></div><p id="runtime" style="font-size:13px;color:#8a3c20">操作プログラムを読み込み中…</p></header>
 <div class="stats">
 <div class="stat"><small>ろ布差圧（模擬）</small><strong id="dp">0.80 kPa</strong></div>
 <div class="stat"><small>逆洗パルス弁</small><strong id="valve">閉</strong></div>
@@ -82,6 +82,25 @@ svg #peelingAsh{fill:#ffb35e}svg .ash-stream{animation:peelAsh 1.7s linear infin
 <rect x="710" y="330" width="60" height="60" rx="7" fill="#2d526a" stroke="#a8c7d8" stroke-width="2"/>
 <g class="rotor"><circle cx="740" cy="360" r="23" fill="#15354a" stroke="#96c8d9"/><path d="M718 360H762M740 338V382M725 345L755 375M755 345L725 375" stroke="#8bd4e6" stroke-width="5"/></g>
 <path class="flow dirty" d="M740 394V495"/>
+<!-- Continuous material-flow overlay: orange dust-containing gas to bag exterior, cyan filtered gas all the way to outlet -->
+<g id="materialFlows" pointer-events="none">
+ <path id="trackDirtyA" d="M75 337 L152 337 Q178 337 180 314 L181 255 L186 250" fill="none" stroke="#ffb158" stroke-width="2" stroke-dasharray="5 8" opacity=".55"/>
+ <path id="trackDirtyB" d="M75 337 L158 337 Q260 338 268 306 L277 254" fill="none" stroke="#ffb158" stroke-width="2" stroke-dasharray="5 8" opacity=".5"/>
+ <path id="trackDirtyC" d="M75 337 L155 337 Q347 355 357 319 L370 256" fill="none" stroke="#ffb158" stroke-width="2" stroke-dasharray="5 8" opacity=".5"/>
+ <path id="trackDirtyD" d="M75 337 L158 337 Q439 354 449 320 L462 256" fill="none" stroke="#ffb158" stroke-width="2" stroke-dasharray="5 8" opacity=".5"/>
+ <path id="trackCleanA" d="M187 260 L214 260 L214 186 L214 147 Q214 127 249 127 L555 127 L626 146 L681 148 L706 152 Q735 165 755 190 L796 215 L911 215" fill="none" stroke="#55d8ec" stroke-width="3" opacity=".65"/>
+ <path id="trackCleanB" d="M281 260 L307 260 L307 186 L307 147 L555 147 L626 148 L681 148 L706 152 Q735 165 755 190 L796 215 L911 215" fill="none" stroke="#55d8ec" stroke-width="2" opacity=".35"/>
+ <path id="trackCleanC" d="M374 260 L400 260 L400 186 L400 149 L555 149 L626 148 L681 148 L706 152 Q735 165 755 190 L796 215 L911 215" fill="none" stroke="#55d8ec" stroke-width="2" opacity=".35"/>
+ <path id="trackCleanD" d="M466 260 L493 260 L493 186 L493 149 L555 149 L626 148 L681 148 L706 152 Q735 165 755 190 L796 215 L911 215" fill="none" stroke="#55d8ec" stroke-width="2" opacity=".35"/>
+ <path id="trackAsh" d="M186 278 Q181 350 189 411 L233 460 L270 490" fill="none" stroke="#ffc96c" stroke-width="2" stroke-dasharray="5 9" opacity=".8"/>
+ <g id="dirtyParticles" fill="#ff9e3f" stroke="#ffda93" stroke-width=".8"></g>
+ <g id="cleanParticles" fill="#50e8ff" stroke="#c7faff" stroke-width=".8"></g>
+ <g id="ashParticles" fill="#ffce6e" stroke="#ffe7af" stroke-width=".9"></g>
+ <text x="70" y="382" style="font-size:15px;fill:#ffbf72;font-weight:700">① 粉じんを含む排ガス</text>
+ <text x="554" y="104" style="font-size:15px;fill:#8feeff;font-weight:700">③ 清浄ガス →</text>
+ <text x="804" y="252" style="font-size:15px;fill:#8feeff;font-weight:700">④ 出口へ →</text>
+ <text x="299" y="477" style="font-size:15px;fill:#ffd17e;font-weight:700">② 捕集ダスト ↓</text>
+</g>
 <!-- animated attention box -->
 <rect id="focus" x="167" y="183" width="390" height="260" rx="6" fill="none" stroke="#ffdc79" stroke-width="3" stroke-dasharray="10 8" pointer-events="none"/>
 <g class="tag" data-device="inlet" transform="translate(29 277)"><rect width="113" height="28" rx="5"/><text x="56" y="18" text-anchor="middle">排ガス入口</text></g>
@@ -112,11 +131,11 @@ svg #peelingAsh{fill:#ffb35e}svg .ash-stream{animation:peelAsh 1.7s linear infin
 try {
 const $=id=>document.getElementById(id),ns="http://www.w3.org/2000/svg";
 const phases=[
-["排ガス流入","誘引通風機が連続運転し、含じんガスがろ過室に入る。","入口から内部へ向かうオレンジの流れ。",.8,"閉","少",[52,306,190,68],"inlet"],
-["ろ過・捕集","ガスはろ布の外側から内側へ通過。ばいじんは外面に蓄積し、清浄ガスは上部へ流れる。","ろ布外面のオレンジのダスト層が成長。",.9,"閉","増加",[169,180,389,265],"bags"],
+["排ガス流入","誘引通風機が連続運転し、含じんガスがろ過室に入る。","オレンジ色の粒子が入口から各ろ布の外面へ到達します。",.8,"閉","少",[52,306,190,68],"inlet"],
+["ろ過・捕集","ガスはろ布の外側から内側へ通過。ばいじんは外面に蓄積し、清浄ガスは上部へ流れる。","オレンジ粒子はろ布外面で捕集、水色粒子だけがろ布を通過し上部清浄室からファン・右端の出口まで流れます。",.9,"閉","増加",[169,180,389,265],"bags"],
 ["差圧上昇","ダスト層が増え、通気抵抗が上昇。設定条件に達すると逆洗要求が成立する。","差圧表示が上がり、制御盤に注目。",1.5,"閉","多",[10,10,153,108],"dp"],
 ["逆洗指令","制御盤が対象列の電磁弁を励磁。パイロット回路が切り替わり主弁が開動作へ移る。","電磁弁と信号線が点灯。",1.5,"開指令","多",[205,13,215,105],"valve"],
-["パルス逆洗","主弁の急開で圧縮空気が噴射管から対象列に流入。ろ布が変形してダストを剥離。","紫の噴射は左端の対象列のみ。他列はろ過継続。",1.3,"瞬間開","剥離",[181,98,91,343],"nozzle"],
+["パルス逆洗","主弁の急開で圧縮空気が噴射管から対象列に流入。ろ布が変形してダストを剥離。","紫のパルスが左端ろ布に入り、付着した灰が剥がれてホッパへ落ちます。水色の清浄ガスは他のろ布から出口へ流れ続けます。",1.3,"瞬間開","剥離",[181,98,91,343],"nozzle"],
 ["ダスト落下","剥離したダストがホッパに落下。ろ過を再開した対象列の抵抗が低下する。","ダスト粒子が下へ落ち、対象列の付着層が減る。",1.05,"閉","減少",[175,343,365,175],"hopper"],
 ["排灰・安定","ホッパからダストを回収。差圧が安定し次の逆洗判定を待つ。","排灰用ロータリーバルブが回転。",.82,"閉","少",[701,324,85,81],"rotary"]
 ];
@@ -135,6 +154,40 @@ fan:["誘引通風機（IDF）","遠心式羽根車の中心側から軸方向�
 };
 const bg=$("bags");for(let i=0;i<0;i++){let x=189+i*93,g=document.createElementNS(ns,"g");g.setAttribute("data-bag",i);g.innerHTML='<path d="M'+x+' 186H'+(x+51)+'V414Q'+(x+25)+' 432 '+x+' 414Z" fill="#c3d6df" stroke="#ecf7fc" stroke-width="2"/><path d="M'+(x+10)+' 195V406 M'+(x+25)+' 195V420 M'+(x+40)+' 207V330" stroke="#7192a4" stroke-dasharray="4 4" fill="none"/><path class="cake" d="M'+(x-4)+' 189V414Q'+(x+25)+' 438 '+(x+55)+' 414V189" fill="none" stroke="#f1a85a" stroke-width="6" stroke-dasharray="4 5"/><path class="flow clean" d="M'+(x+25)+' 396V192"/>';bg.appendChild(g)}
 let time=0,playing=false,speed=1,last=0,current=-1,selected="bags";
+const particles=[];
+function makeParticles(){
+ const defs=[
+  ["dirty","trackDirtyA",5,"dirtyParticles",5.5],["dirty","trackDirtyB",4,"dirtyParticles",4.5],
+  ["dirty","trackDirtyC",4,"dirtyParticles",4.5],["dirty","trackDirtyD",4,"dirtyParticles",4.5],
+  ["clean","trackCleanA",9,"cleanParticles",5.5],["clean","trackCleanB",5,"cleanParticles",4],
+  ["clean","trackCleanC",5,"cleanParticles",4],["clean","trackCleanD",5,"cleanParticles",4],
+  ["ash","trackAsh",8,"ashParticles",5]
+ ];
+ defs.forEach(([kind,id,n,group,radius])=>{
+   const path=$(id); const parent=$(group);if(!path||!parent)return;
+   for(let k=0;k<n;k++){
+     const c=document.createElementNS(ns,"circle");
+     c.setAttribute("r",radius);parent.appendChild(c);
+     particles.push({c,path,len:path.getTotalLength(),start:k/n,kind});
+   }
+ });
+}
+let particleClock=0;
+function positionParticles(){
+ const stage=Math.min(6,Math.floor(time/4));
+ particles.forEach((p,index)=>{
+   const isAsh=p.kind==="ash";
+   const enabled=!isAsh || (stage===4 || stage===5);
+   p.c.style.display=enabled?"":"none";
+   if(!enabled)return;
+   const rate=p.kind==="clean"?.13:p.kind==="ash"?.38:.18;
+   const progress=(p.start+particleClock*rate)%1;
+   const q=p.path.getPointAtLength(p.len*progress);
+   p.c.setAttribute("cx",q.x);p.c.setAttribute("cy",q.y);
+ });
+}
+makeParticles();
+
 function choose(k){selected=k;let d=devices[k];$("devtitle").textContent=d[0];$("devdesc").textContent=d[1];$("devwhen").textContent=d[2];$("devcheck").textContent=d[3];document.querySelectorAll("[data-device]").forEach(n=>n.classList.toggle("selected",n.dataset.device===k));document.querySelectorAll("[data-devbutton]").forEach(n=>n.classList.toggle("active",n.dataset.devbutton===k))}
 Object.entries(devices).forEach(([k,v])=>{let b=document.createElement("button");b.textContent=v[0];b.dataset.devbutton=k;b.onclick=()=>choose(k);$("devices").appendChild(b)});
 document.querySelectorAll("svg [data-device]").forEach(e=>e.addEventListener("click",()=>choose(e.dataset.device)));
@@ -150,12 +203,12 @@ $("jet").style.display=i===4?"":"none";$("fallgroup").style.display=i===5?"":"no
 $("solenoid").setAttribute("fill",i===3||i===4?"#f2b854":"#62768b");$("pulseValve").setAttribute("fill",i===4?"#a975d0":"#4e5269");
 $("signal").setAttribute("stroke",i===3?"#ffd078":"#688295");$("signal").setAttribute("class",i===3?"glow":"");
 bg.querySelectorAll("[data-bag]").forEach((g,j)=>{g.setAttribute("class",i===4&&j===0?"bag-pulse":"");let opacity=i===0?.22:i===1?.22+.73*f:i<=4?.95:i===5&&j===0?.95-.77*f:.2;g.querySelector(".cake").setAttribute("opacity",opacity)});
-document.querySelectorAll("#steps button").forEach((b,j)=>b.classList.toggle("active",i===j))
+positionParticles();document.querySelectorAll("#steps button").forEach((b,j)=>b.classList.toggle("active",i===j))
 }
 $("play").onclick=()=>{playing=!playing;last=0;render(false)};$("next").onclick=()=>{time=((Math.floor(time/4)+1)%7)*4;playing=false;render(true)};$("reset").onclick=()=>{time=0;playing=false;render(true)};$("speed").onclick=()=>{speed=speed===1?1.5:speed===1.5?.5:1;$("speed").textContent="速度 ×"+speed};
 $("seek").oninput=e=>{time=Number(e.target.value)/10;playing=false;render(true)};
-function tick(ts){if(playing&&last){time+=Math.min((ts-last)/1000,.1)*speed;if(time>=28)time=0;render(false)}last=ts;requestAnimationFrame(tick)}
-$("runtime").textContent="操作プログラム：起動済み（v9）";$("runtime").style.color="#087c55";render(true);requestAnimationFrame(tick);
+function tick(ts){if(playing&&last){const dt=Math.min((ts-last)/1000,.1);time+=dt*speed;particleClock+=dt*speed;if(time>=28)time=0;render(false)}last=ts;requestAnimationFrame(tick)}
+$("runtime").textContent="操作プログラム：起動済み（v10）";$("runtime").style.color="#087c55";render(true);requestAnimationFrame(tick);
 } catch(e){const p=document.getElementById("runtime");if(p){p.textContent="動作エラー："+e.message;p.style.color="#b42318"}console.error(e)}
 })();
 </script></body></html>
