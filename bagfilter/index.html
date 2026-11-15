@@ -206,7 +206,7 @@ makeParticles();
 function choose(k){selected=k;let d=devices[k];$("devtitle").textContent=d[0];$("devdesc").textContent=d[1];$("devwhen").textContent=d[2];$("devcheck").textContent=d[3];document.querySelectorAll("[data-device]").forEach(n=>n.classList.toggle("selected",n.dataset.device===k));document.querySelectorAll("[data-devbutton]").forEach(n=>n.classList.toggle("active",n.dataset.devbutton===k))}
 Object.entries(devices).forEach(([k,v])=>{let b=document.createElement("button");b.textContent=v[0];b.dataset.devbutton=k;b.onclick=()=>choose(k);$("devices").appendChild(b)});
 document.querySelectorAll("svg [data-device]").forEach(e=>e.addEventListener("click",()=>choose(e.dataset.device)));
-document.querySelectorAll("#steps [data-stage]").forEach(b=>{b.onclick=()=>{time=Number(b.dataset.stage)*4;playing=false;render(true)}});
+document.querySelectorAll("#steps [data-stage]").forEach(b=>{b.onclick=()=>{time=Number(b.dataset.stage)*4+(Number(b.dataset.stage)===4?1.7:0);playing=false;render(true)}});
 
 const burstParticles=[];
 (function setupBurst(){
@@ -275,7 +275,7 @@ bg.querySelectorAll("[data-bag]").forEach((g,j)=>{
 updateDustBuildup(i,f);
 positionParticles();document.querySelectorAll("#steps button").forEach((b,j)=>b.classList.toggle("active",i===j))
 }
-$("play").onclick=()=>{playing=!playing;last=0;render(false)};$("next").onclick=()=>{time=((Math.floor(time/4)+1)%7)*4;playing=false;render(true)};$("reset").onclick=()=>{time=0;playing=false;render(true)};$("speed").onclick=()=>{speed=speed===1?1.5:speed===1.5?.5:1;$("speed").textContent="速度 ×"+speed};
+$("play").onclick=()=>{playing=!playing;last=0;render(false)};$("next").onclick=()=>{time=((Math.floor(time/4)+1)%7)*4;if(Math.floor(time/4)===4)time+=1.7;playing=false;render(true)};$("reset").onclick=()=>{time=0;playing=false;render(true)};$("speed").onclick=()=>{speed=speed===1?1.5:speed===1.5?.5:1;$("speed").textContent="速度 ×"+speed};
 $("seek").oninput=e=>{time=Number(e.target.value)/10;playing=false;render(true)};
 function tick(ts){if(playing&&last){const dt=Math.min((ts-last)/1000,.1);time+=dt*speed;particleClock+=dt*speed;if(time>=28)time=0;render(false)}last=ts;requestAnimationFrame(tick)}
 $("runtime").textContent="操作プログラム：起動済み（v12）";$("runtime").style.color="#087c55";render(true);requestAnimationFrame(tick);
