@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>ろ過式集じん器｜動作・制御シミュレーター v34</title>
+<title>ろ過式集じん器｜動作・制御シミュレーター v35</title>
 <style>
 :root{font-family:system-ui,-apple-system,"Hiragino Kaku Gothic ProN",Meiryo,sans-serif;color:#183044;background:#eef4f8}
 *{box-sizing:border-box}body{margin:0}.wrap{max-width:1040px;margin:auto;padding:15px}h1{font-size:clamp(20px,4vw,30px);margin:5px 0}p{line-height:1.65}small,.sub{color:#526a79}.panel{background:white;border:1px solid #cbdbe6;border-radius:13px;padding:14px;margin:12px 0;box-shadow:0 1px 3px #abc3d033}
@@ -100,7 +100,7 @@ body.diagram-open{overflow:hidden}
 .diagram-dashboard.high-dp #cakeLive{color:#bd1c16!important}
 </style></head>
 <body><div class="wrap">
-<header><h1>ろ過式集じん器｜動作・制御シミュレーター</h1><div class="sub">焼却施設・パルスジェット式バグフィルタ｜操作型教材　<span id="buildmark" style="color:#006584;font-weight:bold">v34</span></div><p id="runtime" style="font-size:13px;color:#8a3c20">操作プログラムを読み込み中…</p></header>
+<header><h1>ろ過式集じん器｜動作・制御シミュレーター</h1><div class="sub">焼却施設・パルスジェット式バグフィルタ｜操作型教材　<span id="buildmark" style="color:#006584;font-weight:bold">v35</span></div><p id="runtime" style="font-size:13px;color:#8a3c20">操作プログラムを読み込み中…</p></header>
 <div class="stats">
 <div class="stat" id="dpPanel"><small>ろ布差圧（模擬）・逆洗設定 1.40 kPa</small><strong id="dp">0.80 kPa</strong><div class="dp-meter"><span id="dpFill"></span><i></i></div><div id="dpAlarm" class="dp-alarm" role="status" aria-live="polite">正常：差圧は設定値未満</div></div>
 <div class="stat"><small>逆洗パルス弁</small><strong id="valve">閉</strong></div>
@@ -346,21 +346,23 @@ const burstChunks=[];
   [183,309,0,2], [246,319,1,2], [183,350,0,3], [246,357,1,3],
   [183,385,0,4], [246,392,1,4], [195,414,0,5], [233,416,1,5]
  ];
- pieces.forEach(([sx,sy,side,row],index)=>{
-   const group=document.createElementNS(ns,"g");
-   const p=document.createElementNS(ns,"path");
-   const w=16+(index%3)*5, ht=24+(index%4)*4;
-   // Jagged flake silhouette with dark brown core and lighter broken edge.
-   const d="M"+(-w*.65)+" "+(-ht*.58)+"L"+(w*.16)+" "+(-ht*.62)+
-     "L"+(w*.55)+" "+(-ht*.27)+"L"+(w*.67)+" "+(ht*.26)+
-     "L"+(w*.24)+" "+(ht*.57)+"L"+(-w*.46)+" "+(ht*.42)+
-     "L"+(-w*.71)+" "+(ht*.05)+"Z";
-   p.setAttribute("d",d);
-   p.setAttribute("fill",index%3===0?"#8d562a":index%3===1?"#a86b34":"#b77b3f");
-   p.setAttribute("stroke","#f4c078"); p.setAttribute("stroke-width","1.3");
-   group.appendChild(p);host.appendChild(group);
-   burstChunks.push({el:group,sx,sy,side,row,index});
- });
+ for(let bag=0;bag<4;bag++){
+   pieces.forEach(([sx,sy,side,row],index)=>{
+     const group=document.createElementNS(ns,"g");
+     const p=document.createElementNS(ns,"path");
+     const w=16+(index%3)*5, ht=24+(index%4)*4;
+     // Exactly the v19 flake shape, color, and synchronized release for all four bags.
+     const d="M"+(-w*.65)+" "+(-ht*.58)+"L"+(w*.16)+" "+(-ht*.62)+
+       "L"+(w*.55)+" "+(-ht*.27)+"L"+(w*.67)+" "+(ht*.26)+
+       "L"+(w*.24)+" "+(ht*.57)+"L"+(-w*.46)+" "+(ht*.42)+
+       "L"+(-w*.71)+" "+(ht*.05)+"Z";
+     p.setAttribute("d",d);
+     p.setAttribute("fill",index%3===0?"#8d562a":index%3===1?"#a86b34":"#b77b3f");
+     p.setAttribute("stroke","#f4c078"); p.setAttribute("stroke-width","1.3");
+     group.appendChild(p);host.appendChild(group);
+     burstChunks.push({el:group,sx:sx+bag*93,sy,side,row,index,bag});
+   });
+ }
 })();
 function updateDustBuildup(stage,f){
  // Preserve current coating buildup outside pulse; use v19's thick peeling
@@ -368,7 +370,7 @@ function updateDustBuildup(stage,f){
  const growth=stage===0?.06:stage===1?.12+.48*f:stage===2?.60+.40*f:1;
  document.querySelectorAll(".dust-coat-row").forEach((row,bag)=>{
    const coating=row.querySelector(".coat-left"),grains=row.querySelector(".coat-grain");
-   const isV19Breakaway=(bag===0&&stage===4);
+   const isV19Breakaway=(stage===4);
    const level=stage<4?growth:stage===4?(f<.13?1:Math.max(.07,1-(f-.13)*5.8)):.07;
    const oldLevel=stage===4?(f<.13?1:Math.max(.08,1-(f-.13)*5.8)):.08;
    coating.setAttribute("stroke-width",String(isV19Breakaway?3+oldLevel*21:2.3+level*5.5));
@@ -386,7 +388,7 @@ function updateDustBuildup(stage,f){
    const start=.13+p.row*.016;
    const t=Math.max(0,Math.min(1,(progress-start)/.46));
    if(t===0){p.el.setAttribute("opacity","0");return;}
-   const targetX=245+(p.index%5)*20;
+   const targetX=245+(p.index%5)*20+p.bag*50;
    const targetY=469+(p.index%3)*7;
    const y=p.sy+(targetY-p.sy)*t*t;
    const x=p.sx+(p.side===0?-17:17)*Math.sin(t*Math.PI)+(targetX-p.sx)*t*t;
@@ -488,7 +490,7 @@ $("expandDiagram").addEventListener("click",()=>{
 });
 setView("all");
 
-$("runtime").textContent="操作プログラム：起動済み（v34）";$("runtime").style.color="#087c55";render(true);requestAnimationFrame(tick);
+$("runtime").textContent="操作プログラム：起動済み（v35）";$("runtime").style.color="#087c55";render(true);requestAnimationFrame(tick);
 } catch(e){const p=document.getElementById("runtime");if(p){p.textContent="動作エラー："+e.message;p.style.color="#b42318"}console.error(e)}
 })();
 </script></body></html>
