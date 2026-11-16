@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>ろ過式集じん器｜動作・制御シミュレーター v20</title>
+<title>ろ過式集じん器｜動作・制御シミュレーター v21</title>
 <style>
 :root{font-family:system-ui,-apple-system,"Hiragino Kaku Gothic ProN",Meiryo,sans-serif;color:#183044;background:#eef4f8}
 *{box-sizing:border-box}body{margin:0}.wrap{max-width:1040px;margin:auto;padding:15px}h1{font-size:clamp(20px,4vw,30px);margin:5px 0}p{line-height:1.65}small,.sub{color:#526a79}.panel{background:white;border:1px solid #cbdbe6;border-radius:13px;padding:14px;margin:12px 0;box-shadow:0 1px 3px #abc3d033}
@@ -96,9 +96,11 @@ body.diagram-open{overflow:hidden}
 #steps button:nth-child(-n+4){grid-row:1!important}
 #steps button:nth-child(5),#steps button:nth-child(6),#steps button:nth-child(7){grid-row:2!important}
 @media(max-width:640px){#steps{grid-template-rows:32px 32px!important}#steps button{height:32px!important;min-height:32px!important;max-height:32px!important;font-size:9px!important}}
+/* Alert dust status alongside high differential pressure, no other dashboard changes. */
+.diagram-dashboard.high-dp #cakeLive{color:#bd1c16!important}
 </style></head>
 <body><div class="wrap">
-<header><h1>ろ過式集じん器｜動作・制御シミュレーター</h1><div class="sub">焼却施設・パルスジェット式バグフィルタ｜操作型教材　<span id="buildmark" style="color:#006584;font-weight:bold">v20</span></div><p id="runtime" style="font-size:13px;color:#8a3c20">操作プログラムを読み込み中…</p></header>
+<header><h1>ろ過式集じん器｜動作・制御シミュレーター</h1><div class="sub">焼却施設・パルスジェット式バグフィルタ｜操作型教材　<span id="buildmark" style="color:#006584;font-weight:bold">v21</span></div><p id="runtime" style="font-size:13px;color:#8a3c20">操作プログラムを読み込み中…</p></header>
 <div class="stats">
 <div class="stat" id="dpPanel"><small>ろ布差圧（模擬）・逆洗設定 1.40 kPa</small><strong id="dp">0.80 kPa</strong><div class="dp-meter"><span id="dpFill"></span><i></i></div><div id="dpAlarm" class="dp-alarm" role="status" aria-live="polite">正常：差圧は設定値未満</div></div>
 <div class="stat"><small>逆洗パルス弁</small><strong id="valve">閉</strong></div>
@@ -156,9 +158,21 @@ body.diagram-open{overflow:hidden}
 </g>
 <!-- DUST BUILDUP + RAPID RELEASE: static container; original four bags and 7 stages preserved -->
 <g id="dustCoatings" pointer-events="none">
-  <g id="coatA" stroke="#d68a39" stroke-linecap="round" fill="none">
-   <path id="coatLeft" d="M185 203V414Q214 439 244 414V203" stroke-width="4" opacity=".55"/>
-   <path id="coatGrain" d="M180 224V394 M248 230V402" stroke-width="4" stroke-dasharray="3 8" opacity=".6"/>
+  <g class="dust-coat-row" data-coat-row="0" transform="translate(0 0)" stroke="#d68a39" stroke-linecap="round" fill="none">
+   <path class="coat-left" d="M185 203V414Q214 439 244 414V203" stroke-width="4" opacity=".55"/>
+   <path class="coat-grain" d="M180 224V394 M248 230V402" stroke-width="4" stroke-dasharray="3 8" opacity=".6"/>
+  </g>
+  <g class="dust-coat-row" data-coat-row="1" transform="translate(93 0)" stroke="#d68a39" stroke-linecap="round" fill="none">
+   <path class="coat-left" d="M185 203V414Q214 439 244 414V203" stroke-width="4" opacity=".55"/>
+   <path class="coat-grain" d="M180 224V394 M248 230V402" stroke-width="4" stroke-dasharray="3 8" opacity=".6"/>
+  </g>
+  <g class="dust-coat-row" data-coat-row="2" transform="translate(186 0)" stroke="#d68a39" stroke-linecap="round" fill="none">
+   <path class="coat-left" d="M185 203V414Q214 439 244 414V203" stroke-width="4" opacity=".55"/>
+   <path class="coat-grain" d="M180 224V394 M248 230V402" stroke-width="4" stroke-dasharray="3 8" opacity=".6"/>
+  </g>
+  <g class="dust-coat-row" data-coat-row="3" transform="translate(279 0)" stroke="#d68a39" stroke-linecap="round" fill="none">
+   <path class="coat-left" d="M185 203V414Q214 439 244 414V203" stroke-width="4" opacity=".55"/>
+   <path class="coat-grain" d="M180 224V394 M248 230V402" stroke-width="4" stroke-dasharray="3 8" opacity=".6"/>
   </g>
 </g>
 <g id="dustAvalanche" pointer-events="none" fill="#ffc06a" stroke="#9e642b" stroke-width="1.2"></g>
@@ -335,11 +349,15 @@ const burstChunks=[];
 function updateDustBuildup(stage,f){
  // Dust builds visibly for the full filtration and pressure-rise stages.
  const growth=stage===0?0.04:stage===1?0.10+0.60*f:stage===2?0.70+0.30*f:stage===3?1:stage===4?(f<.13?1:Math.max(0.08,1-(f-.13)*5.8)):0.08;
- const coat=$("coatLeft"), grain=$("coatGrain");
- coat.setAttribute("stroke-width",String(3+growth*21));
- grain.setAttribute("stroke-width",String(2+growth*11));
- coat.setAttribute("opacity",String(.2+growth*.77));
- grain.setAttribute("opacity",String(.1+growth*.84));
+ document.querySelectorAll(".dust-coat-row").forEach((row,index)=>{
+   // Every bag accumulates the same thinner dust cake. Only the pulsed A row is cleaned.
+   const level=(stage>=4 && index!==0)?1:growth;
+   const coating=row.querySelector(".coat-left"),grains=row.querySelector(".coat-grain");
+   coating.setAttribute("stroke-width",String(3+level*11));
+   grains.setAttribute("stroke-width",String(2+level*5));
+   coating.setAttribute("opacity",String(.18+level*.72));
+   grains.setAttribute("opacity",String(.08+level*.70));
+ });
  // One sudden synchronized detachment, then coherent cake slabs tumble into hopper.
  const release=stage===4||stage===5;
  const progress=stage===4?f:1;
@@ -389,7 +407,7 @@ $("solenoid").setAttribute("fill",i===3||i===4?"#f2b854":"#62768b");$("pulseValv
 $("signal").setAttribute("stroke",thresholdReached||alarmLatched?"#ff5d53":i===3?"#ffd078":"#688295");$("signal").setAttribute("class",i===3?"glow":"");
 bg.querySelectorAll("[data-bag]").forEach((g,j)=>{
  g.setAttribute("class",i===4&&j===0?"bag-pulse":"");
- let opacity=j===0?(i===0?.12:i===1?.18+.65*f:i===2||i===3?.94:i===4?Math.max(.12,.94-3.3*f):.12):.28;
+ let opacity=i===0?.12:i===1?.12+.65*f:i===2?.77+.17*f:i===3?.94:j===0?(i===4?Math.max(.12,.94-3.3*f):.12):.94;
  g.querySelector(".cake").setAttribute("opacity",String(opacity));
 });
 updateDustBuildup(i,f);
@@ -430,7 +448,7 @@ $("expandDiagram").addEventListener("click",()=>{
 });
 setView("all");
 
-$("runtime").textContent="操作プログラム：起動済み（v20）";$("runtime").style.color="#087c55";render(true);requestAnimationFrame(tick);
+$("runtime").textContent="操作プログラム：起動済み（v21）";$("runtime").style.color="#087c55";render(true);requestAnimationFrame(tick);
 } catch(e){const p=document.getElementById("runtime");if(p){p.textContent="動作エラー："+e.message;p.style.color="#b42318"}console.error(e)}
 })();
 </script></body></html>
