@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>ろ過式集じん器｜動作・制御シミュレーター v41</title>
+<title>ろ過式集じん器｜動作・制御シミュレーター v42</title>
 <style>
 :root{font-family:system-ui,-apple-system,"Hiragino Kaku Gothic ProN",Meiryo,sans-serif;color:#183044;background:#eef4f8}
 *{box-sizing:border-box}body{margin:0}.wrap{max-width:1040px;margin:auto;padding:15px}h1{font-size:clamp(20px,4vw,30px);margin:5px 0}p{line-height:1.65}small,.sub{color:#526a79}.panel{background:white;border:1px solid #cbdbe6;border-radius:13px;padding:14px;margin:12px 0;box-shadow:0 1px 3px #abc3d033}
@@ -100,7 +100,7 @@ body.diagram-open{overflow:hidden}
 .diagram-dashboard.high-dp #cakeLive{color:#bd1c16!important}
 </style></head>
 <body><div class="wrap">
-<header><h1>ろ過式集じん器｜動作・制御シミュレーター</h1><div class="sub">焼却施設・パルスジェット式バグフィルタ｜操作型教材　<span id="buildmark" style="color:#006584;font-weight:bold">v41</span></div><p id="runtime" style="font-size:13px;color:#8a3c20">操作プログラムを読み込み中…</p></header>
+<header><h1>ろ過式集じん器｜動作・制御シミュレーター</h1><div class="sub">焼却施設・パルスジェット式バグフィルタ｜操作型教材　<span id="buildmark" style="color:#006584;font-weight:bold">v42</span></div><p id="runtime" style="font-size:13px;color:#8a3c20">操作プログラムを読み込み中…</p></header>
 <div class="stats">
 <div class="stat" id="dpPanel"><small>ろ布差圧（模擬）・逆洗設定 1.40 kPa</small><strong id="dp">0.80 kPa</strong><div class="dp-meter"><span id="dpFill"></span><i></i></div><div id="dpAlarm" class="dp-alarm" role="status" aria-live="polite">正常：差圧は設定値未満</div></div>
 <div class="stat"><small>逆洗パルス弁</small><strong id="valve">閉</strong></div>
@@ -124,7 +124,7 @@ body.diagram-open{overflow:hidden}
 <p class="view-caption" id="viewCaption">全体：排ガス入口からろ過・逆洗・出口まで表示しています。</p>
 </details>
 <svg id="scene" viewBox="0 0 940 570" role="img" aria-label="ろ過式集じん器の断面と誘引通風機の遠心羽根車">
-<defs><clipPath id="fanclip"><circle cx="735" cy="166" r="29.5"/></clipPath><marker id="arrO" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0 0L6 3L0 6Z" fill="#f4aa51"/></marker><marker id="arrB" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0 0L6 3L0 6Z" fill="#55d8ec"/></marker></defs>
+<defs><clipPath id="dustCasingClip"><path d="M172 185H554V414L507 511H219L172 414Z"/></clipPath><clipPath id="fanclip"><circle cx="735" cy="166" r="29.5"/></clipPath><marker id="arrO" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0 0L6 3L0 6Z" fill="#f4aa51"/></marker><marker id="arrB" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0 0L6 3L0 6Z" fill="#55d8ec"/></marker></defs>
 <!-- Body / dirty inlet / clean upper chamber -->
 <path d="M166 100H560V415L511 517H215L166 415Z" fill="#233e53" stroke="#9fbed1" stroke-width="3"/>
 <rect x="169" y="103" width="388" height="75" fill="#145775" opacity=".85"/>
@@ -175,7 +175,7 @@ body.diagram-open{overflow:hidden}
    <path class="coat-grain" d="M180 224V394 M248 230V402" stroke-width="4" stroke-dasharray="3 8" opacity=".6"/>
   </g>
 </g>
-<g id="dustAvalanche" pointer-events="none" fill="#ffc06a" stroke="#9e642b" stroke-width="1.2"></g>
+<g id="dustAvalanche" clip-path="url(#dustCasingClip)" pointer-events="none" fill="#ffc06a" stroke="#9e642b" stroke-width="1.2"></g>
 <g id="dustPile" pointer-events="none">
  <path id="dustPileShape" d="M203 498Q260 498 317 498Z" fill="#c48b40" stroke="#ffc377" stroke-width="1" opacity=".4"/>
 </g>
@@ -393,19 +393,41 @@ function updateDustBuildup(stage,f){
  $("dustActionText").style.display=stage===4?"":"none";
  burstChunks.forEach(p=>{
    if(!release)return;
-   const start=.13+p.row*.016;
-   const t=Math.max(0,Math.min(1,(progress-start)/.46));
+   const start=.13+p.row*.016+p.bag*.008;
+   const t=Math.max(0,Math.min(1,(progress-start)/.58));
    if(t===0){p.el.setAttribute("opacity","0");return;}
-   // Copy the same v19 detachment trajectory independently to each bag:
-   // retain the identical bag-local movement, without steering other bags
-   // toward the first bag's hopper position.
-   const localX=p.sx-p.bag*93;
-   const localTargetX=245+(p.index%5)*20;
-   const targetY=469+(p.index%3)*7;
-   const y=p.sy+(targetY-p.sy)*t*t;
-   const localMotion=localX+(p.side===0?-17:17)*Math.sin(t*Math.PI)+(localTargetX-localX)*t*t;
-   const x=localMotion+p.bag*93;
-   const angle=(p.side===0?-1:1)*(8+70*t)+p.index%3*11*t;
+   // The casing is x=166..560 down to y=415, then slopes to x=215..511 at y=517.
+   // Ash initially drops beside its own bag, then follows its *actual* wall/floor.
+   // Leftmost and rightmost bag faces strike different slopes; inner faces fall
+   // to the flat hopper floor. No particle is steered through the casing wall.
+   const x0=p.sx;
+   const leftWall=x0<228, rightWall=x0>498;
+   const contactY=leftWall?Math.min(501,415+(x0-178)*102/49):
+                  rightWall?Math.min(501,415+(548-x0)*102/49):501;
+   let x,y;
+   if(t<.68){
+     const q=t/.68;
+     x=x0;
+     y=p.sy+(contactY-p.sy)*q*q;
+   }else if(t<.93){
+     const q=(t-.68)/.25;
+     if(leftWall){
+       y=contactY+(501-contactY)*q;
+       x=178+(y-415)*49/102;
+     }else if(rightWall){
+       y=contactY+(501-contactY)*q;
+       x=548-(y-415)*49/102;
+     }else{
+       y=501;
+       x=x0+(363-x0)*.20*q;
+     }
+   }else{
+     const q=(t-.93)/.07;
+     y=501;
+     const baseX=leftWall?178+(501-415)*49/102:rightWall?548-(501-415)*49/102:x0+(363-x0)*.20;
+     x=baseX+(363-baseX)*q;
+   }
+   const angle=(p.side===0?-1:1)*(4+26*t)+(p.index%3)*6*t;
    p.el.setAttribute("transform","translate("+x.toFixed(1)+" "+y.toFixed(1)+") rotate("+angle.toFixed(1)+")");
    p.el.setAttribute("opacity",String(t>=.99?0.05:1));
  });
@@ -503,7 +525,7 @@ $("expandDiagram").addEventListener("click",()=>{
 });
 setView("all");
 
-$("runtime").textContent="操作プログラム：起動済み（v41）";$("runtime").style.color="#087c55";render(true);requestAnimationFrame(tick);
+$("runtime").textContent="操作プログラム：起動済み（v42）";$("runtime").style.color="#087c55";render(true);requestAnimationFrame(tick);
 } catch(e){const p=document.getElementById("runtime");if(p){p.textContent="動作エラー："+e.message;p.style.color="#b42318"}console.error(e)}
 })();
 </script></body></html>
