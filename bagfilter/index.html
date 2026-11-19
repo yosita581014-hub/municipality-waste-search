@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>ろ過式集じん器｜動作・制御シミュレーター v42</title>
+<title>ろ過式集じん器｜動作・制御シミュレーター v43</title>
 <style>
 :root{font-family:system-ui,-apple-system,"Hiragino Kaku Gothic ProN",Meiryo,sans-serif;color:#183044;background:#eef4f8}
 *{box-sizing:border-box}body{margin:0}.wrap{max-width:1040px;margin:auto;padding:15px}h1{font-size:clamp(20px,4vw,30px);margin:5px 0}p{line-height:1.65}small,.sub{color:#526a79}.panel{background:white;border:1px solid #cbdbe6;border-radius:13px;padding:14px;margin:12px 0;box-shadow:0 1px 3px #abc3d033}
@@ -100,7 +100,7 @@ body.diagram-open{overflow:hidden}
 .diagram-dashboard.high-dp #cakeLive{color:#bd1c16!important}
 </style></head>
 <body><div class="wrap">
-<header><h1>ろ過式集じん器｜動作・制御シミュレーター</h1><div class="sub">焼却施設・パルスジェット式バグフィルタ｜操作型教材　<span id="buildmark" style="color:#006584;font-weight:bold">v42</span></div><p id="runtime" style="font-size:13px;color:#8a3c20">操作プログラムを読み込み中…</p></header>
+<header><h1>ろ過式集じん器｜動作・制御シミュレーター</h1><div class="sub">焼却施設・パルスジェット式バグフィルタ｜操作型教材　<span id="buildmark" style="color:#006584;font-weight:bold">v43</span></div><p id="runtime" style="font-size:13px;color:#8a3c20">操作プログラムを読み込み中…</p></header>
 <div class="stats">
 <div class="stat" id="dpPanel"><small>ろ布差圧（模擬）・逆洗設定 1.40 kPa</small><strong id="dp">0.80 kPa</strong><div class="dp-meter"><span id="dpFill"></span><i></i></div><div id="dpAlarm" class="dp-alarm" role="status" aria-live="polite">正常：差圧は設定値未満</div></div>
 <div class="stat"><small>逆洗パルス弁</small><strong id="valve">閉</strong></div>
@@ -205,10 +205,13 @@ body.diagram-open{overflow:hidden}
 <text x="85" y="38" text-anchor="middle" font-weight="bold">逆洗制御盤</text><text x="85" y="55" font-size="10" text-anchor="middle">差圧・タイマー</text>
 <path id="signal" d="M152 40H209V30H247" fill="none" stroke="#688295" stroke-dasharray="5 5" stroke-width="3"/>
 <!-- Clean gas to outlet -->
-<path d="M560 130H665V167H560Z" fill="#205670" stroke="#a7c5d5" stroke-width="2"/>
-<path class="flow clean" d="M569 148H650" marker-end="url(#arrB)"/>
+<!-- Filtered gas exits the clean plenum, descends to the ID fan inlet. -->
+<path d="M560 130H664V337H695V371H630V167H560Z" fill="#205670" stroke="#a7c5d5" stroke-width="2"/>
+<path class="flow clean" d="M569 148H647V354H697" marker-end="url(#arrB)"/>
+<!-- Fan delivery duct rises to the stack; no direct baghouse-to-stack bypass. -->
+<path d="M828 386H858V422H828Z" fill="#205670" stroke="#a7c5d5" stroke-width="2"/>
 <!-- Centrifugal ID fan: schematic of axial inlet, scroll volute, tangential discharge -->
-<g id="fanbody">
+<g id="fanbody" transform="translate(0 188)">
 <path d="M735 109C771 109 802 137 802 172C802 183 800 192 795 198H832V234H770V213C759 219 748 221 735 221C704 221 681 197 681 166C681 135 704 109 735 109Z" fill="#294d64" stroke="#9dc3d7" stroke-width="3"/>
 <circle cx="735" cy="166" r="35" fill="#193445" stroke="#8cc2d9" stroke-width="2.5"/>
 <g clip-path="url(#fanclip)"><g class="fanrotor" id="fanrotor">
@@ -223,8 +226,16 @@ body.diagram-open{overflow:hidden}
 <circle r="7" fill="#164052" stroke="#bce8f2" stroke-width="1.6"/>
 <circle r="2.5" fill="#ecfaff"/>
 </g></g></g>
-<path class="flow clean" d="M830 215H921" marker-end="url(#arrB)"/>
-<text x="835" y="186" font-size="11">吐出</text><text x="680" y="110" font-size="11">吸込（軸方向）</text>
+<text x="804" y="242" font-size="11">吐出</text><text x="680" y="110" font-size="11">吸込（軸方向）</text>
+</g>
+<!-- Stack: ID fan discharge enters at its base, then cleaned gas travels upward. -->
+<g id="stack" pointer-events="none">
+<path d="M857 458V86H901V458Z" fill="#29485d" stroke="#a7c5d5" stroke-width="3"/>
+<path d="M867 447V98H891V447" fill="none" stroke="#346c86" stroke-width="2"/>
+<rect x="853" y="83" width="52" height="10" rx="3" fill="#597f94" stroke="#cae0eb" stroke-width="1.5"/>
+<path class="flow clean" d="M838 404H879V113" marker-end="url(#arrB)" stroke-width="4"/>
+<text x="877" y="65" text-anchor="middle" style="font-size:17px;font-weight:800;fill:#a5ecf7">煙突</text>
+<text x="844" y="470" style="font-size:11px;fill:#9ce3ee">放流ガス</text>
 </g>
 <!-- Rotary discharge -->
 <!-- Hopper bottom discharge feeds the rotary valve directly -->
@@ -239,17 +250,17 @@ body.diagram-open{overflow:hidden}
  <path id="trackDirtyB" d="M75 337 L158 337 Q260 338 268 306 L277 254" fill="none" stroke="#ffb158" stroke-width="2" stroke-dasharray="5 8" opacity=".5"/>
  <path id="trackDirtyC" d="M75 337 L155 337 Q347 355 357 319 L370 256" fill="none" stroke="#ffb158" stroke-width="2" stroke-dasharray="5 8" opacity=".5"/>
  <path id="trackDirtyD" d="M75 337 L158 337 Q439 354 449 320 L462 256" fill="none" stroke="#ffb158" stroke-width="2" stroke-dasharray="5 8" opacity=".5"/>
- <path id="trackCleanA" d="M187 260 L214 260 L214 186 L214 147 Q214 127 249 127 L555 127 L626 146 L681 148 L706 152 Q735 165 755 190 L796 215 L911 215" fill="none" stroke="#55d8ec" stroke-width="3" opacity=".65"/>
- <path id="trackCleanB" d="M281 260 L307 260 L307 186 L307 147 L555 147 L626 148 L681 148 L706 152 Q735 165 755 190 L796 215 L911 215" fill="none" stroke="#55d8ec" stroke-width="2" opacity=".35"/>
- <path id="trackCleanC" d="M374 260 L400 260 L400 186 L400 149 L555 149 L626 148 L681 148 L706 152 Q735 165 755 190 L796 215 L911 215" fill="none" stroke="#55d8ec" stroke-width="2" opacity=".35"/>
- <path id="trackCleanD" d="M466 260 L493 260 L493 186 L493 149 L555 149 L626 148 L681 148 L706 152 Q735 165 755 190 L796 215 L911 215" fill="none" stroke="#55d8ec" stroke-width="2" opacity=".35"/>
+ <path id="trackCleanA" d="M187 260 L214 260 L214 186 L214 147 Q214 127 249 127 L555 127 L626 146 L647 146 L647 354 L707 354 Q735 354 760 373 L805 403 L879 403 L879 105" fill="none" stroke="#55d8ec" stroke-width="3" opacity=".65"/>
+ <path id="trackCleanB" d="M281 260 L307 260 L307 186 L307 147 L555 147 L626 147 L647 147 L647 354 L707 354 Q735 354 760 373 L805 403 L879 403 L879 105" fill="none" stroke="#55d8ec" stroke-width="2" opacity=".35"/>
+ <path id="trackCleanC" d="M374 260 L400 260 L400 186 L400 149 L555 149 L626 149 L647 149 L647 354 L707 354 Q735 354 760 373 L805 403 L879 403 L879 105" fill="none" stroke="#55d8ec" stroke-width="2" opacity=".35"/>
+ <path id="trackCleanD" d="M466 260 L493 260 L493 186 L493 149 L555 149 L626 149 L647 149 L647 354 L707 354 Q735 354 760 373 L805 403 L879 403 L879 105" fill="none" stroke="#55d8ec" stroke-width="2" opacity=".35"/>
  <path id="trackAsh" d="M186 278 Q181 350 189 411 L233 460 L270 490" fill="none" stroke="#ffc96c" stroke-width="2" stroke-dasharray="5 9" opacity=".8"/>
  <g id="dirtyParticles" fill="#ff9e3f" stroke="#ffda93" stroke-width=".8"></g>
  <g id="cleanParticles" fill="#50e8ff" stroke="#c7faff" stroke-width=".8"></g>
  <g id="ashParticles" fill="#ffce6e" stroke="#ffe7af" stroke-width=".9"></g>
  <text x="70" y="382" style="font-size:15px;fill:#ffbf72;font-weight:700">① 粉じんを含む排ガス</text>
  <text x="554" y="104" style="font-size:15px;fill:#8feeff;font-weight:700">③ 清浄ガス →</text>
- <text x="804" y="252" style="font-size:15px;fill:#8feeff;font-weight:700">④ 出口へ →</text>
+ <text x="703" y="501" style="font-size:15px;fill:#8feeff;font-weight:700">④ IDF → 煙突 ↑</text>
  <text x="299" y="477" style="font-size:15px;fill:#ffd17e;font-weight:700">② 捕集ダスト ↓</text>
 </g>
 <!-- animated attention box -->
@@ -263,7 +274,7 @@ body.diagram-open{overflow:hidden}
 <g class="tag" data-device="bags" transform="translate(295 313)"><rect width="145" height="30" rx="5"/><text x="72" y="19" text-anchor="middle">ろ布・リテーナ</text></g>
 <g class="tag" data-device="hopper" transform="translate(238 460)"><rect width="93" height="28" rx="5"/><text x="46" y="18" text-anchor="middle">ホッパ</text></g>
 <g class="tag" data-device="rotary" transform="translate(395 529)"><rect width="143" height="28" rx="5"/><text x="71" y="18" text-anchor="middle">ロータリーバルブ</text></g>
-<g class="tag" data-device="fan" transform="translate(680 264)"><rect width="145" height="28" rx="5"/><text x="72" y="18" text-anchor="middle">誘引通風機（IDF）</text></g>
+<g class="tag" data-device="fan" transform="translate(679 446)"><rect width="145" height="28" rx="5"/><text x="72" y="18" text-anchor="middle">誘引通風機（IDF）</text></g>
 <g class="tag" data-device="dp" transform="translate(18 133)"><rect width="81" height="28" rx="5"/><text x="40" y="18" text-anchor="middle">差圧計</text></g>
 </svg>
 <div class="legend"><span>🟠 含じんガス・ダスト</span><span>🔵 清浄ガス</span><span>🟣 逆洗空気</span><span>🟡 注目範囲</span></div>
@@ -525,7 +536,7 @@ $("expandDiagram").addEventListener("click",()=>{
 });
 setView("all");
 
-$("runtime").textContent="操作プログラム：起動済み（v42）";$("runtime").style.color="#087c55";render(true);requestAnimationFrame(tick);
+$("runtime").textContent="操作プログラム：起動済み（v43）";$("runtime").style.color="#087c55";render(true);requestAnimationFrame(tick);
 } catch(e){const p=document.getElementById("runtime");if(p){p.textContent="動作エラー："+e.message;p.style.color="#b42318"}console.error(e)}
 })();
 </script></body></html>
