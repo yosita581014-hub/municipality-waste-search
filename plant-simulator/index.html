@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ごみ焼却施設｜設備シミュレーター</title>
+<style>
+:root{font-family:system-ui,-apple-system,"Hiragino Kaku Gothic ProN",Meiryo,sans-serif;color:#173447;background:#eef4f8}*{box-sizing:border-box}body{margin:0}
+header{padding:13px max(12px,calc((100vw - 1140px)/2));background:white;border-bottom:1px solid #cedde7}h1{font-size:clamp(19px,3vw,28px);margin:0 0 5px}.sub{font-size:12px;color:#547080}
+.tabs{display:flex;gap:6px;overflow-x:auto;white-space:nowrap;padding:10px max(10px,calc((100vw - 1140px)/2));background:#e6f0f6;scrollbar-width:thin}
+.tab{border:1px solid #b6cdd9;background:white;color:#194761;border-radius:8px;padding:11px 15px;font-size:14px;font-weight:700;cursor:pointer;min-height:43px}
+.tab[aria-selected="true"]{background:#0b6788;color:#fff;border-color:#0b6788}.tab:focus-visible{outline:3px solid orange;outline-offset:2px}
+main{max-width:1140px;margin:auto;padding:0 8px 14px}.frame{width:100%;height:calc(100vh - 153px);min-height:680px;border:1px solid #ccdae3;border-radius:8px;background:#fff;display:block}
+.status{font-size:12px;color:#526b79;margin:7px 4px}
+@media(max-width:700px){header{padding:9px 10px}.tab{font-size:12px;padding:9px 10px}.frame{height:calc(100dvh - 127px);min-height:590px}main{padding:0 3px 8px}}
+</style></head><body>
+<header><h1>ごみ焼却施設｜設備シミュレーター</h1><div class="sub">タブを切り替えて各設備の構造と動作を学ぶ</div></header>
+<nav class="tabs" role="tablist" aria-label="設備を選ぶ">
+<button class="tab" role="tab" id="tab-bag" aria-controls="simframe" aria-selected="true" data-sim="bag">ろ過式集じん器</button>
+<button class="tab" role="tab" id="tab-quench" aria-controls="simframe" aria-selected="false" data-sim="quench">減温塔</button>
+</nav>
+<main><div id="status" class="status" aria-live="polite">表示中：ろ過式集じん器</div>
+<iframe id="simframe" class="frame" title="ろ過式集じん器 シミュレーター" src="../bagfilter/?v=52" loading="eager" allow="fullscreen"></iframe>
+</main>
+<script>
+(()=>{const tabs=[...document.querySelectorAll('[data-sim]')],frame=document.getElementById('simframe'),status=document.getElementById('status');const cfg={bag:{label:'ろ過式集じん器',url:'../bagfilter/?v=52'},quench:{label:'減温塔',url:'./quench.html?v=1'}};function select(key,focus){if(!cfg[key])return;tabs.forEach(t=>{let active=t.dataset.sim===key;t.setAttribute('aria-selected',String(active));t.tabIndex=active?0:-1;if(active&&focus)t.focus()});frame.src=cfg[key].url;frame.title=cfg[key].label+' シミュレーター';status.textContent='表示中：'+cfg[key].label;history.replaceState(null,'','#'+key)};tabs.forEach((tab,i)=>{tab.addEventListener('click',()=>select(tab.dataset.sim,false));tab.addEventListener('keydown',e=>{if(!['ArrowLeft','ArrowRight','Home','End'].includes(e.key))return;e.preventDefault();const n=e.key==='Home'?0:e.key==='End'?tabs.length-1:(i+(e.key==='ArrowRight'?1:tabs.length-1))%tabs.length;select(tabs[n].dataset.sim,true)})});if(cfg[location.hash.slice(1)]&&location.hash.slice(1)!=='bag')select(location.hash.slice(1),false)})();
+</script></body></html>
