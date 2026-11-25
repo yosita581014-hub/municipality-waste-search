@@ -1,0 +1,53 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>減温塔｜シミュレーター v1</title><style>
+:root{font-family:system-ui,-apple-system,"Hiragino Kaku Gothic ProN",Meiryo,sans-serif;color:#1a3548;background:#edf4f8}*{box-sizing:border-box}body{margin:0}.wrap{max-width:1050px;margin:auto;padding:10px}.panel{background:white;border:1px solid #ccdae5;border-radius:12px;margin:8px 0;padding:11px}h1{font-size:clamp(19px,3.5vw,26px);margin:3px 0}.muted{color:#5a7080;font-size:12px}.metrics,.steps,.sliders{display:grid;gap:7px}.metrics{grid-template-columns:repeat(4,1fr)}.metric{border:1px solid #cbdde6;border-radius:8px;padding:7px;min-width:0}.metric small{display:block;color:#506b7b;font-size:11px}.metric strong{display:block;font-size:clamp(17px,2.4vw,23px);margin:4px 0}.metric.warn{background:#fff0ed;border-color:#d84b3f}.metric.warn strong{color:#bd3024}.steps{grid-template-columns:repeat(4,1fr)}button{font:inherit;font-size:12px;font-weight:700;padding:9px 5px;cursor:pointer;border:1px solid #b9ceda;background:#fff;color:#1a475e;border-radius:8px}button.active,button.primary{background:#086785;color:#fff;border-color:#086785}button:focus-visible,input:focus-visible{outline:3px solid orange}svg{width:100%;height:auto;display:block;background:#0c2638;border-radius:10px}svg text{font-family:inherit;fill:#eaf6ff}.controls{display:flex;gap:7px;flex-wrap:wrap}.controls button{flex:1}.sliders{grid-template-columns:repeat(2,1fr)}label{font-weight:700;font-size:13px;display:flex;justify-content:space-between;gap:10px}input[type=range]{width:100%;accent-color:#087da3}.desc{font-size:14px;line-height:1.7}.note{font-size:12px;color:#5c7181}
+@media(max-width:620px){.wrap{padding:5px}.panel{padding:8px}.metrics{grid-template-columns:repeat(2,1fr)}.steps button{font-size:11px;padding:8px 2px}.sliders{grid-template-columns:1fr}}
+</style></head><body><div class="wrap"><header><h1>減温塔｜蒸発冷却シミュレーター v1</h1><div class="muted">排ガスの流入 → 水噴霧 → 蒸発冷却 → 温度制御 → バグフィルタへ</div></header>
+<section class="panel metrics"><div class="metric"><small>入口温度</small><strong id="tinDisplay">320 ℃</strong></div><div class="metric" id="outPanel"><small>出口温度（模擬）</small><strong id="toutDisplay">320 ℃</strong></div><div class="metric"><small>噴霧水量（相対値）</small><strong id="waterDisplay">0 %</strong></div><div class="metric"><small>噴霧弁</small><strong id="valveDisplay">閉</strong></div></section>
+<section class="panel steps" id="buttons"><button data-step="0">01 排ガス流入</button><button data-step="1">02 温度測定</button><button data-step="2">03 噴霧開始</button><button data-step="3">04 蒸発冷却</button><button data-step="4">05 温度制御</button><button data-step="5">06 負荷変動</button><button data-step="6">07 次工程へ</button></section>
+<section class="panel">
+<svg id="scene" viewBox="0 0 900 535" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="減温塔の内部で水が噴霧され蒸発し、排ガス温度が低下する動作図">
+<defs><linearGradient id="body"><stop stop-color="#173a50"/><stop offset=".5" stop-color="#315b72"/><stop offset="1" stop-color="#15384e"/></linearGradient><linearGradient id="spray" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#81dafa" stop-opacity=".65"/><stop offset="1" stop-color="#6cd3f5" stop-opacity="0"/></linearGradient><clipPath id="inside"><path d="M255 100H542V380L514 454H285L255 380Z"/></clipPath></defs>
+<path d="M28 126H255V185H28Z" fill="#2e5064" stroke="#86afc0" stroke-width="3"/>
+<path d="M255 100H542V380L514 454H285L255 380Z" fill="url(#body)" stroke="#a2c9da" stroke-width="4"/>
+<path d="M514 415H710V478H514Z" fill="#23556e" stroke="#8db9c9" stroke-width="3"/>
+<path d="M255 100H542" stroke="#d2e6ed" stroke-width="5"/>
+<path d="M664 41V69H340V142M664 69H451V142" fill="none" stroke="#66c9ed" stroke-width="8" stroke-linejoin="round"/>
+<rect x="323" y="136" width="34" height="15" rx="4" fill="#a6d8e9"/><rect x="435" y="136" width="34" height="15" rx="4" fill="#a6d8e9"/>
+<rect x="640" y="28" width="47" height="28" rx="6" fill="#476077" stroke="#9ce0f2" stroke-width="2"/><text x="665" y="47" font-size="12" text-anchor="middle">弁</text>
+<g id="cones" clip-path="url(#inside)" style="display:none"><path d="M340 150L280 348Q340 372 402 348Z" fill="url(#spray)"/><path d="M451 150L389 348Q451 372 512 348Z" fill="url(#spray)"/></g>
+<g id="inletParticles"></g><g id="hotParticles" clip-path="url(#inside)"></g><g id="droplets" clip-path="url(#inside)"></g><g id="vapor" clip-path="url(#inside)"></g><g id="outParticles"></g>
+<path d="M553 433H616V390H653" fill="none" stroke="#e3d27c" stroke-width="4"/><circle cx="653" cy="390" r="19" fill="#31465a" stroke="#ead484" stroke-width="3"/><text x="653" y="395" text-anchor="middle" font-size="12">TT</text>
+<path d="M672 388H775V301" stroke="#c3adf3" fill="none" stroke-dasharray="7 8" stroke-width="3"/>
+<rect x="711" y="236" width="167" height="66" rx="8" fill="#2d526a" stroke="#a0c9d9" stroke-width="2"/><text x="794" y="260" text-anchor="middle" font-size="15" font-weight="700">温度調節計 TIC</text><text id="tic" x="794" y="285" text-anchor="middle" font-size="19">320 ℃</text>
+<rect x="726" y="83" width="145" height="95" rx="7" fill="#285771" stroke="#77bbd9" stroke-width="2"/><path d="M735 137H862V167H735Z" fill="#3889af"/><text x="798" y="106" text-anchor="middle" font-size="15">噴霧水タンク</text>
+<text x="42" y="107" font-size="16" font-weight="700">高温排ガス →</text><text x="540" y="510" font-size="16" font-weight="700">冷却ガス → バグフィルタ</text><text x="294" y="48" font-size="20" font-weight="700">減温塔</text><text x="28" y="516" font-size="12">※ 教育用の概念モデル。実設計の熱収支・蒸発余裕・温度設定値とは異なります。</text>
+</svg>
+<p class="note">橙：高温排ガス　水色：噴霧水　白：蒸発水蒸気　青緑：冷却後の排ガス</p>
+</section>
+<section class="panel"><div class="controls"><button class="primary" id="play">▶ 自動再生</button><button id="next">次工程</button><button id="reset">↺ 最初へ</button><button id="speed">速度 ×1</button></div><input type="range" id="seek" min="0" max="280" value="0" step="1" aria-label="再生位置"><div class="muted" id="clock">0.0 / 28.0 秒</div></section>
+<section class="panel sliders"><div><label for="inlet">入口温度 <span id="inletText">320 ℃</span></label><input type="range" id="inlet" min="250" max="400" step="10" value="320"></div><div><label for="target">出口温度設定 <span id="targetText">180 ℃</span></label><input type="range" id="target" min="150" max="220" step="5" value="180"></div></section>
+<section class="panel"><h2 id="stageTitle" style="font-size:18px;margin:0 0 4px">01 排ガス流入</h2><p class="desc" id="description">排ガスを減温塔へ導入します。</p><p class="note">出口温度は説明用の近似モデルです。実機の制御には排ガス量・湿度・蒸発時間・付着防止などの検討が必要です。</p></section>
+</div>
+<script>
+(()=>{"use strict";const $=id=>document.getElementById(id),NS="http://www.w3.org/2000/svg";
+const phases=[["排ガス流入","ごみ焼却施設からの高温排ガスが減温塔へ流入します。"],["温度測定","入口・出口側の温度を監視し、出口温度設定値との偏差を確認します。"],["噴霧開始","制御弁を開け、ノズルから微細な水滴を噴霧します。"],["蒸発冷却","水滴の蒸発潜熱により排ガスから熱が奪われ、温度が低下します。"],["温度制御","温度調節計が出口温度に応じて噴霧水量を変化させます。"],["負荷変動","入口温度変動が起きても、出口温度を目標付近に保つよう噴霧を調整します。"],["次工程へ","冷却した排ガスは後段の薬剤吹込設備やろ過式集じん器へ送られます。"]];
+let time=0,playing=false,speed=1,last=0;const particles=[];let isChanged=false;
+function make(group,count,fill,r,kind){const g=$(group);for(let i=0;i<count;i++){const c=document.createElementNS(NS,"circle");c.setAttribute("r",r+(i%3)*.5);c.setAttribute("fill",fill);c.setAttribute("opacity",".88");g.appendChild(c);particles.push({c,kind,offset:i/count,index:i})}}
+make("inletParticles",13,"#ffa962",4.2,"inlet");make("hotParticles",22,"#ffad57",3.6,"hot");make("droplets",55,"#6bdafa",2.6,"water");make("vapor",28,"#dceef7",3.8,"vapor");make("outParticles",20,"#6ad8d6",3.7,"out");
+function clamp(v,min,max){return Math.max(min,Math.min(max,v))}function render(){const stage=Math.min(6,Math.floor(time/4)),f=time%4/4,tin=Number($("inlet").value)+(stage===5?25*Math.sin(f*Math.PI):0),target=Number($("target").value);
+const amount=stage<2?0:stage===2?f*.6:stage===3?.6+f*.35:clamp((tin-target)/180,.24,1);const outlet=stage<2?tin:stage===2?tin-(tin-target)*f*.32:stage===3?tin-(tin-target)*(.32+.63*f):tin-(tin-target)*(.95+(stage===5?.04*Math.sin(f*Math.PI):0));const adjusted=clamp(outlet,125,tin);
+$("tinDisplay").textContent=tin.toFixed(0)+" ℃";$("toutDisplay").textContent=adjusted.toFixed(0)+" ℃";$("waterDisplay").textContent=(amount*100).toFixed(0)+" %";$("valveDisplay").textContent=amount>.01?"開":"閉";$("tic").textContent=adjusted.toFixed(0)+" ℃";$("inletText").textContent=$("inlet").value+" ℃";$("targetText").textContent=$("target").value+" ℃";
+$("outPanel").classList.toggle("warn",stage>=4&&Math.abs(adjusted-target)>20);$("cones").style.display=amount>.02?"":"none";
+$("stageTitle").textContent=String(stage+1).padStart(2,"0")+" "+phases[stage][0];$("description").textContent=phases[stage][1];$("clock").textContent=time.toFixed(1)+" / 28.0 秒";$("seek").value=String(Math.round(time*10));$("play").textContent=playing?"❚❚ 一時停止":"▶ 自動再生";
+document.querySelectorAll("[data-step]").forEach((b,i)=>b.classList.toggle("active",stage===i));
+particles.forEach(({c,kind,offset,index})=>{const q=(offset+time*(kind==="water"?.41:.13))%1;let x,y,visible=true;
+if(kind==="inlet"){x=35+q*232;y=150+Math.sin(q*10+index)*14;visible=stage!==6}
+else if(kind==="hot"){x=280+(index%11)*24+Math.sin(time*.9+index)*10;y=180+q*200;visible=stage!==6}
+else if(kind==="water"){x=(index%2?451:340)+Math.sin(index*2.17)*q*75;y=156+q*260;visible=amount>.02;c.setAttribute("opacity",String(Math.max(.05,.95-q*1.2)))}
+else if(kind==="vapor"){x=290+(index%14)*18+Math.sin(time+index)*11;y=355-q*185;visible=stage>=3;c.setAttribute("opacity",String(.15+.38*(1-q)))}
+else{x=524+q*178;y=447+Math.sin(q*6+index)*12;visible=stage>=3;c.setAttribute("opacity",".86")}
+c.setAttribute("cx",x.toFixed(1));c.setAttribute("cy",y.toFixed(1));c.style.display=visible?"":"none";
+});}
+document.querySelectorAll("[data-step]").forEach(b=>b.onclick=()=>{time=Number(b.dataset.step)*4;playing=false;render()});$("play").onclick=()=>{playing=!playing;last=0;render()};$("next").onclick=()=>{time=((Math.floor(time/4)+1)%7)*4;playing=false;render()};$("reset").onclick=()=>{time=0;playing=false;render()};$("speed").onclick=()=>{speed=speed===1?1.5:speed===1.5?.5:1;$("speed").textContent="速度 ×"+speed};$("seek").oninput=e=>{time=Number(e.target.value)/10;playing=false;render()};$("inlet").oninput=render;$("target").oninput=render;function tick(ts){if(playing&&last){time+=Math.min(.1,(ts-last)/1000)*speed;if(time>=28)time=0;render()}last=ts;requestAnimationFrame(tick)}render();requestAnimationFrame(tick);
+})();
+</script></body></html>
