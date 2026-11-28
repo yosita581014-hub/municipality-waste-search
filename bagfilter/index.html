@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>ろ過式集じん器｜動作・制御シミュレーター v53</title>
+<title>ろ過式集じん器｜動作・制御シミュレーター v54</title>
 <style>
 :root{font-family:system-ui,-apple-system,"Hiragino Kaku Gothic ProN",Meiryo,sans-serif;color:#183044;background:#eef4f8}
 *{box-sizing:border-box}body{margin:0}.wrap{max-width:1040px;margin:auto;padding:15px}h1{font-size:clamp(20px,4vw,30px);margin:5px 0}p{line-height:1.65}small,.sub{color:#526a79}.panel{background:white;border:1px solid #cbdbe6;border-radius:13px;padding:14px;margin:12px 0;box-shadow:0 1px 3px #abc3d033}
@@ -107,7 +107,7 @@ body.diagram-open{overflow:hidden}
 .diagram-dashboard.high-dp #cakeLive{color:#bd1c16!important}
 </style></head>
 <body><div class="wrap">
-<header><h1>ろ過式集じん器｜動作・制御シミュレーター</h1><div class="sub">焼却施設・パルスジェット式バグフィルタ｜操作型教材　<span id="buildmark" style="color:#006584;font-weight:bold">v53</span></div><p id="runtime" style="font-size:13px;color:#8a3c20">操作プログラムを読み込み中…</p></header>
+<header><h1>ろ過式集じん器｜動作・制御シミュレーター</h1><div class="sub">焼却施設・パルスジェット式バグフィルタ｜操作型教材　<span id="buildmark" style="color:#006584;font-weight:bold">v54</span></div><p id="runtime" style="font-size:13px;color:#8a3c20">操作プログラムを読み込み中…</p></header>
 <div class="stats">
 <div class="stat" id="dpPanel"><small>ろ布差圧（模擬）・逆洗設定 1.40 kPa</small><strong id="dp">0.80 kPa</strong><div class="dp-meter"><span id="dpFill"></span><i></i></div><div id="dpAlarm" class="dp-alarm" role="status" aria-live="polite">正常：差圧は設定値未満</div></div>
 <div class="stat"><small>逆洗パルス弁</small><strong id="valve">閉</strong></div>
@@ -136,14 +136,16 @@ body.diagram-open{overflow:hidden}
 <path d="M166 100H560V415L511 517H215L166 415Z" fill="#233e53" stroke="#9fbed1" stroke-width="3"/>
 <rect x="169" y="103" width="388" height="75" fill="#145775" opacity=".85"/>
 <path d="M168 180H558" stroke="#d6e7f1" stroke-width="8"/>
-<path d="M55 315H166V358H55Z" fill="#6c4c38" stroke="#dab181" stroke-width="2"/>
-<path class="flow dirty" d="M61 338H159" marker-end="url(#arrO)"/>
-<g id="dirtyflow"><path class="flow dirty" d="M174 338H212 M281 338H314 M389 338H422 M495 338H538"/></g>
+<!-- Inlet below the tube sheet, near hopper shoulder; inlet deflector turns the dusty stream toward the bag exteriors. -->
+<path d="M55 367H166V410H55Z" fill="#6c4c38" stroke="#dab181" stroke-width="2"/>
+<path class="flow dirty" d="M61 389H156" marker-end="url(#arrO)"/>
+<path d="M193 361L198 399Q199 405 204 409" stroke="#a7b7bf" stroke-width="7" fill="none" stroke-linecap="round"/>
+<g id="dirtyflow"><path class="flow dirty" d="M174 410Q184 422 214 434 M222 431Q261 402 267 335 M315 418Q357 401 360 330 M409 418Q453 401 455 329"/></g>
 <!-- pressure difference alert wash: red only when threshold is reached -->
 <rect id="dpHighZone" x="170" y="187" width="384" height="248" rx="10" fill="#ff4637" opacity="0" pointer-events="none"/>
 <g id="dpHighLabel" style="display:none" pointer-events="none"><rect x="285" y="374" width="206" height="39" rx="8" fill="#a9231c" stroke="#ffb3aa" stroke-width="2"/><text x="388" y="399" text-anchor="middle" style="font-size:17px;font-weight:800">差圧上限到達！</text></g>
 <!-- bags: four independent rows/illustrative section -->
-<g id="bags"><g data-bag="0"><path d="M189 186H240V414Q214 432 189 414Z" fill="#c3d6df" stroke="#ecf7fc" stroke-width="2"/><path d="M199 195V406 M214 195V420 M229 195V406" stroke="#7192a4" stroke-dasharray="4 4" fill="none"/><path class="cake" d="M185 189V414Q214 438 244 414V189" fill="none" stroke="#f1a85a" stroke-width="6" stroke-dasharray="4 5" opacity=".25"/><path class="flow clean" d="M214 396V192"/></g><g data-bag="1"><path d="M282 186H333V414Q307 432 282 414Z" fill="#c3d6df" stroke="#ecf7fc" stroke-width="2"/><path d="M292 195V406 M307 195V420 M322 195V406" stroke="#7192a4" stroke-dasharray="4 4" fill="none"/><path class="cake" d="M278 189V414Q307 438 337 414V189" fill="none" stroke="#f1a85a" stroke-width="6" stroke-dasharray="4 5" opacity=".25"/><path class="flow clean" d="M307 396V192"/></g><g data-bag="2"><path d="M375 186H426V414Q400 432 375 414Z" fill="#c3d6df" stroke="#ecf7fc" stroke-width="2"/><path d="M385 195V406 M400 195V420 M415 195V406" stroke="#7192a4" stroke-dasharray="4 4" fill="none"/><path class="cake" d="M371 189V414Q400 438 430 414V189" fill="none" stroke="#f1a85a" stroke-width="6" stroke-dasharray="4 5" opacity=".25"/><path class="flow clean" d="M400 396V192"/></g><g data-bag="3"><path d="M468 186H519V414Q493 432 468 414Z" fill="#c3d6df" stroke="#ecf7fc" stroke-width="2"/><path d="M478 195V406 M493 195V420 M508 195V406" stroke="#7192a4" stroke-dasharray="4 4" fill="none"/><path class="cake" d="M464 189V414Q493 438 523 414V189" fill="none" stroke="#f1a85a" stroke-width="6" stroke-dasharray="4 5" opacity=".25"/><path class="flow clean" d="M493 396V192"/></g></g>
+<g id="bags"><g data-bag="0"><path d="M196 186H232V395Q214 415 196 395Z" fill="#c3d6df" stroke="#ecf7fc" stroke-width="2"/><path d="M204 195V392 M214 195V404 M224 195V392" stroke="#7192a4" stroke-dasharray="4 4" fill="none"/><path class="cake" d="M193 189V395Q214 421 235 395V189" fill="none" stroke="#f1a85a" stroke-width="6" stroke-dasharray="4 5" opacity=".25"/><path class="flow clean" d="M214 385V192"/></g><g data-bag="1"><path d="M289 186H325V395Q307 415 289 395Z" fill="#c3d6df" stroke="#ecf7fc" stroke-width="2"/><path d="M297 195V392 M307 195V404 M317 195V392" stroke="#7192a4" stroke-dasharray="4 4" fill="none"/><path class="cake" d="M286 189V395Q307 421 328 395V189" fill="none" stroke="#f1a85a" stroke-width="6" stroke-dasharray="4 5" opacity=".25"/><path class="flow clean" d="M307 385V192"/></g><g data-bag="2"><path d="M382 186H418V395Q400 415 382 395Z" fill="#c3d6df" stroke="#ecf7fc" stroke-width="2"/><path d="M390 195V392 M400 195V404 M410 195V392" stroke="#7192a4" stroke-dasharray="4 4" fill="none"/><path class="cake" d="M379 189V395Q400 421 421 395V189" fill="none" stroke="#f1a85a" stroke-width="6" stroke-dasharray="4 5" opacity=".25"/><path class="flow clean" d="M400 385V192"/></g><g data-bag="3"><path d="M475 186H511V395Q493 415 475 395Z" fill="#c3d6df" stroke="#ecf7fc" stroke-width="2"/><path d="M483 195V392 M493 195V404 M503 195V392" stroke="#7192a4" stroke-dasharray="4 4" fill="none"/><path class="cake" d="M472 189V395Q493 421 514 395V189" fill="none" stroke="#f1a85a" stroke-width="6" stroke-dasharray="4 5" opacity=".25"/><path class="flow clean" d="M493 385V192"/></g></g>
 <g id="fallgroup" style="display:none" fill="#f6ac61">
 <circle class="dustfall" cx="224" cy="411" r="5"/><circle class="dustfall" cx="255" cy="424" r="4"/><circle class="dustfall" cx="302" cy="410" r="5"/><circle class="dustfall" cx="342" cy="425" r="4"/><circle class="dustfall" cx="390" cy="417" r="4"/>
 </g>
@@ -165,22 +167,10 @@ body.diagram-open{overflow:hidden}
 </g>
 <!-- DUST BUILDUP + RAPID RELEASE: static container; original four bags and 7 stages preserved -->
 <g id="dustCoatings" pointer-events="none">
-  <g class="dust-coat-row" data-coat-row="0" transform="translate(0 0)" stroke="#d68a39" stroke-linecap="round" fill="none">
-   <path class="coat-left" d="M185 203V414Q214 439 244 414V203" stroke-width="4" opacity=".55"/>
-   <path class="coat-grain" d="M180 224V394 M248 230V402" stroke-width="4" stroke-dasharray="3 8" opacity=".6"/>
-  </g>
-  <g class="dust-coat-row" data-coat-row="1" transform="translate(93 0)" stroke="#d68a39" stroke-linecap="round" fill="none">
-   <path class="coat-left" d="M185 203V414Q214 439 244 414V203" stroke-width="4" opacity=".55"/>
-   <path class="coat-grain" d="M180 224V394 M248 230V402" stroke-width="4" stroke-dasharray="3 8" opacity=".6"/>
-  </g>
-  <g class="dust-coat-row" data-coat-row="2" transform="translate(186 0)" stroke="#d68a39" stroke-linecap="round" fill="none">
-   <path class="coat-left" d="M185 203V414Q214 439 244 414V203" stroke-width="4" opacity=".55"/>
-   <path class="coat-grain" d="M180 224V394 M248 230V402" stroke-width="4" stroke-dasharray="3 8" opacity=".6"/>
-  </g>
-  <g class="dust-coat-row" data-coat-row="3" transform="translate(279 0)" stroke="#d68a39" stroke-linecap="round" fill="none">
-   <path class="coat-left" d="M185 203V414Q214 439 244 414V203" stroke-width="4" opacity=".55"/>
-   <path class="coat-grain" d="M180 224V394 M248 230V402" stroke-width="4" stroke-dasharray="3 8" opacity=".6"/>
-  </g>
+  <g class="dust-coat-row" data-coat-row="0" transform="translate(0 0)" stroke="#d68a39" stroke-linecap="round" fill="none"><path class="coat-left" d="M193 203V395Q214 420 235 395V203" stroke-width="4" opacity=".55"/><path class="coat-grain" d="M190 224V383 M238 230V389" stroke-width="4" stroke-dasharray="3 8" opacity=".6"/></g>
+<g class="dust-coat-row" data-coat-row="1" transform="translate(93 0)" stroke="#d68a39" stroke-linecap="round" fill="none"><path class="coat-left" d="M193 203V395Q214 420 235 395V203" stroke-width="4" opacity=".55"/><path class="coat-grain" d="M190 224V383 M238 230V389" stroke-width="4" stroke-dasharray="3 8" opacity=".6"/></g>
+<g class="dust-coat-row" data-coat-row="2" transform="translate(186 0)" stroke="#d68a39" stroke-linecap="round" fill="none"><path class="coat-left" d="M193 203V395Q214 420 235 395V203" stroke-width="4" opacity=".55"/><path class="coat-grain" d="M190 224V383 M238 230V389" stroke-width="4" stroke-dasharray="3 8" opacity=".6"/></g>
+<g class="dust-coat-row" data-coat-row="3" transform="translate(279 0)" stroke="#d68a39" stroke-linecap="round" fill="none"><path class="coat-left" d="M193 203V395Q214 420 235 395V203" stroke-width="4" opacity=".55"/><path class="coat-grain" d="M190 224V383 M238 230V389" stroke-width="4" stroke-dasharray="3 8" opacity=".6"/></g>
 </g>
 <g id="dustAvalanche" clip-path="url(#dustCasingClip)" pointer-events="none" fill="#ffc06a" stroke="#9e642b" stroke-width="1.2"></g>
 <g id="dustPile" pointer-events="none">
@@ -276,14 +266,14 @@ body.diagram-open{overflow:hidden}
 <g id="rotaryDischarge" style="display:none" fill="#f2b768"><circle cx="351" cy="563" r="3"/><circle cx="363" cy="564" r="4"/><circle cx="374" cy="563" r="3"/></g>
 <!-- Continuous material-flow overlay: orange dust-containing gas to bag exterior, cyan filtered gas all the way to outlet -->
 <g id="materialFlows" pointer-events="none">
- <path id="trackDirtyA" d="M75 337 L152 337 Q178 337 180 314 L181 255 L186 250" fill="none" stroke="#ffb158" stroke-width="2" stroke-dasharray="5 8" opacity="0"/>
- <path id="trackDirtyB" d="M75 337 L158 337 Q260 338 268 306 L277 254" fill="none" stroke="#ffb158" stroke-width="2" stroke-dasharray="5 8" opacity="0"/>
- <path id="trackDirtyC" d="M75 337 L155 337 Q347 355 357 319 L370 256" fill="none" stroke="#ffb158" stroke-width="2" stroke-dasharray="5 8" opacity="0"/>
- <path id="trackDirtyD" d="M75 337 L158 337 Q439 354 449 320 L462 256" fill="none" stroke="#ffb158" stroke-width="2" stroke-dasharray="5 8" opacity="0"/>
- <path id="trackCleanA" d="M187 260 L214 260 L214 186 L214 147 L555 147 L626 147 L647 147 L647 354 L707 354 Q735 354 760 373 L805 403 L879 403 L879 105" fill="none" stroke="#55d8ec" stroke-width="3" opacity=".65"/>
- <path id="trackCleanB" d="M281 260 L307 260 L307 186 L307 147 L555 147 L626 147 L647 147 L647 354 L707 354 Q735 354 760 373 L805 403 L879 403 L879 105" fill="none" stroke="#55d8ec" stroke-width="2" opacity=".35"/>
- <path id="trackCleanC" d="M374 260 L400 260 L400 186 L400 147 L555 147 L626 147 L647 147 L647 354 L707 354 Q735 354 760 373 L805 403 L879 403 L879 105" fill="none" stroke="#55d8ec" stroke-width="2" opacity=".35"/>
- <path id="trackCleanD" d="M466 260 L493 260 L493 186 L493 147 L555 147 L626 147 L647 147 L647 354 L707 354 Q735 354 760 373 L805 403 L879 403 L879 105" fill="none" stroke="#55d8ec" stroke-width="2" opacity=".35"/>
+ <path id="trackDirtyA" d="M75 389 L153 389 Q173 393 181 415 Q195 438 193 344 L193 270" fill="none" stroke="#ffb158" stroke-width="2" stroke-dasharray="5 8" opacity="0"/>
+ <path id="trackDirtyB" d="M75 389 L158 389 Q218 438 267 409 Q284 390 286 300 L286 270" fill="none" stroke="#ffb158" stroke-width="2" stroke-dasharray="5 8" opacity="0"/>
+ <path id="trackDirtyC" d="M75 389 L158 389 Q281 443 359 410 Q379 375 379 303 L379 270" fill="none" stroke="#ffb158" stroke-width="2" stroke-dasharray="5 8" opacity="0"/>
+ <path id="trackDirtyD" d="M75 389 L158 389 Q351 443 451 410 Q469 372 472 300 L472 270" fill="none" stroke="#ffb158" stroke-width="2" stroke-dasharray="5 8" opacity="0"/>
+ <path id="trackCleanA" d="M196 260 L214 260 L214 186 L214 147 L555 147 L626 147 L647 147 L647 354 L707 354 Q735 354 760 373 L805 403 L879 403 L879 105" fill="none" stroke="#55d8ec" stroke-width="3" opacity=".65"/>
+ <path id="trackCleanB" d="M289 260 L307 260 L307 186 L307 147 L555 147 L626 147 L647 147 L647 354 L707 354 Q735 354 760 373 L805 403 L879 403 L879 105" fill="none" stroke="#55d8ec" stroke-width="2" opacity=".35"/>
+ <path id="trackCleanC" d="M382 260 L400 260 L400 186 L400 147 L555 147 L626 147 L647 147 L647 354 L707 354 Q735 354 760 373 L805 403 L879 403 L879 105" fill="none" stroke="#55d8ec" stroke-width="2" opacity=".35"/>
+ <path id="trackCleanD" d="M475 260 L493 260 L493 186 L493 147 L555 147 L626 147 L647 147 L647 354 L707 354 Q735 354 760 373 L805 403 L879 403 L879 105" fill="none" stroke="#55d8ec" stroke-width="2" opacity=".35"/>
  <path id="trackAsh" d="M186 278 Q181 350 189 411 L233 460 L270 490" fill="none" stroke="#ffc96c" stroke-width="2" stroke-dasharray="5 9" opacity="0"/>
  <g id="dirtyParticles" fill="#ff9e3f" stroke="#ffda93" stroke-width=".8"></g>
  <g id="cleanParticles" fill="#50e8ff" stroke="#c7faff" stroke-width=".8"></g>
@@ -406,9 +396,9 @@ const burstChunks=[];
  // Irregular, wide pieces of filter cake (not a rain of round particles).
  // Two strips on the exterior of A-row bag break free nearly together.
  const pieces=[
-  [183,227,0,0], [245,232,1,0], [183,268,0,1], [246,277,1,1],
-  [183,309,0,2], [246,319,1,2], [183,350,0,3], [246,357,1,3],
-  [183,385,0,4], [246,392,1,4], [195,414,0,5], [233,416,1,5]
+  [191,227,0,0], [237,232,1,0], [191,268,0,1], [237,277,1,1],
+  [191,309,0,2], [237,319,1,2], [191,350,0,3], [237,357,1,3],
+  [191,379,0,4], [237,386,1,4], [197,395,0,5], [231,397,1,5]
  ];
  for(let bag=0;bag<4;bag++){
    pieces.forEach(([sx,sy,side,row],index)=>{
@@ -587,7 +577,7 @@ $("expandDiagram").addEventListener("click",()=>{
 });
 setView("all");
 
-alignPulseToBags();$("runtime").textContent="操作プログラム：起動済み（v53）";$("runtime").style.color="#087c55";render(true);requestAnimationFrame(tick);
+alignPulseToBags();$("runtime").textContent="操作プログラム：起動済み（v54）";$("runtime").style.color="#087c55";render(true);requestAnimationFrame(tick);
 } catch(e){const p=document.getElementById("runtime");if(p){p.textContent="動作エラー："+e.message;p.style.color="#b42318"}console.error(e)}
 })();
 </script></body></html>
