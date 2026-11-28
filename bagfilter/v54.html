@@ -1,0 +1,583 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ろ過式集じん器｜動作・制御シミュレーター v54</title>
+<style>
+:root{font-family:system-ui,-apple-system,"Hiragino Kaku Gothic ProN",Meiryo,sans-serif;color:#183044;background:#eef4f8}
+*{box-sizing:border-box}body{margin:0}.wrap{max-width:1040px;margin:auto;padding:15px}h1{font-size:clamp(20px,4vw,30px);margin:5px 0}p{line-height:1.65}small,.sub{color:#526a79}.panel{background:white;border:1px solid #cbdbe6;border-radius:13px;padding:14px;margin:12px 0;box-shadow:0 1px 3px #abc3d033}
+.stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}#dpPanel{display:none}.stat{padding:11px;border:1px solid #cbdbe6;border-radius:9px;background:white}.stat strong{font-size:19px;display:block;margin-top:4px}.stat small{font-size:11px}
+.controls{display:flex;flex-wrap:wrap;gap:8px}button{font:inherit;cursor:pointer;border:1px solid #b6cfdd;border-radius:8px;background:white;color:#163d56;padding:9px 12px;font-weight:650}button:focus-visible{outline:3px solid #ffa548}button.primary,button.active{background:#086183;color:white;border-color:#086183}
+.steps{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}.steps button{font-size:12px;padding:8px 3px;min-height:60px}.steps button b{display:block;font-size:11px}#seek{width:100%;accent-color:#086183}
+#scene{display:block;width:100%;height:auto;background:#0c2032;border-radius:10px;touch-action:manipulation}svg text{font-family:inherit;fill:#e9f4fa;font-size:13px}svg .flow{fill:none;stroke-width:5;stroke-dasharray:9 14;animation:move 1.1s linear infinite}svg .dirty{stroke:#f4aa51}svg .clean{stroke:#55d8ec}svg .air{stroke:#ca9cfc;stroke-width:8;animation-duration:.35s}/* The equipment-name buttons below the diagram remain interactive; hide overlaid SVG labels. */ svg .tag{display:none} svg .tag{cursor:pointer}svg .tag rect{fill:#27455d;stroke:#8baabc;stroke-width:1.2}svg .tag text{font-size:12px;font-weight:600;pointer-events:none}svg .tag.selected rect{fill:#146f88;stroke:#8beeff;stroke-width:3}
+svg .dustfall{animation:fall 1.3s linear infinite}svg .rotor{transform-origin:363px 544px;animation:spin 2.8s linear infinite}svg .fanrotor{transform-origin:735px 166px;animation:spin 1.6s linear infinite}
+svg .pulse-plume{transform-box:fill-box;transform-origin:center top;animation:jetBlast .52s ease-out infinite}
+@media(max-width:768px){
+ svg #jet .pulse-plume>path:first-child{opacity:1!important;stroke:#b9e7ff;stroke-width:1.6;filter:drop-shadow(0 0 8px #8ddcff)}
+ svg #jet .pulse-core{stroke:#ffffff;stroke-width:10!important;stroke-dasharray:24 9;filter:drop-shadow(0 0 9px #6ed8ff)}
+ svg #jet .pulse-plume>path:nth-child(3){stroke-width:4;opacity:1!important}
+ svg #jet .pulse-plume>path:nth-child(4){stroke-width:5}
+ svg #jet .pulse-plume{animation-duration:.65s}
+}svg .pulse-core{animation:jetDash .34s linear infinite}@keyframes jetBlast{0%{opacity:.22;transform:scaleY(.42) scaleX(.7)}18%{opacity:1;transform:scaleY(1) scaleX(1.1)}70%{opacity:.78;transform:scaleY(.96) scaleX(1)}100%{opacity:.25;transform:scaleY(.65) scaleX(.8)}}@keyframes jetDash{to{stroke-dashoffset:-72}} svg .bag-pulse{animation:swell .3s ease-in-out infinite alternate;transform-origin:center top;transform-box:fill-box} svg .bag-pulse .cake{stroke:#ffdc75;stroke-width:9}
+svg .glow{animation:flash .55s ease-in-out infinite alternate}
+.paused svg *{animation-play-state:paused!important}@keyframes move{to{stroke-dashoffset:-46}}@keyframes spin{to{transform:rotate(360deg)}}@keyframes fall{0%{transform:translateY(-13px);opacity:0}20%{opacity:1}100%{transform:translateY(95px);opacity:0}}@keyframes flash{to{opacity:.3}}@keyframes swell{to{transform:scaleX(1.13)}}
+.legend{display:flex;flex-wrap:wrap;gap:12px;color:#425b6a;font-size:12px;margin:8px 0}.explain{background:#eaf3f7;border-left:4px solid #086183;padding:11px 14px;border-radius:6px}.devices{display:flex;flex-wrap:wrap;gap:6px}.devices button{font-size:12px;padding:7px}.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}.detail h3{margin:0 0 7px}.detail p{margin:6px 0}.hint{font-size:12px;color:#617684}.note{font-size:12px;color:#5d7180}
+@media(max-width:640px){.wrap{padding:9px}.panel{padding:10px}.steps{grid-template-columns:repeat(4,1fr)}.stat strong{font-size:16px}.two{grid-template-columns:1fr}svg .tag text{font-size:14px}}
+svg #dustAvalanche circle{filter:drop-shadow(0 0 1.5px #ffbd59)}svg #coatA{transition:opacity .15s}svg #materialFlows circle{filter:drop-shadow(0 0 2px currentColor)}svg #peelingAsh{fill:#ffb35e}svg .ash-stream{animation:peelAsh 1.7s linear infinite;transform-box:fill-box}svg .ash-delayed{animation-delay:-.85s}svg #hopperAsh{fill:#ffba6e}svg .ash-drop{animation:peelAsh 1.4s linear infinite}@keyframes peelAsh{0%{transform:translateY(0);opacity:0}12%{opacity:1}82%{opacity:1}100%{transform:translateY(90px);opacity:0}}#dpPanel{transition:background .2s,border-color .2s}#dpPanel.dp-warning{border:2px solid #e04035;background:#fff0ee;animation:dpWarning 1s ease-in-out infinite alternate}#dpPanel.dp-warning strong{color:#bd1c16}#dpPanel.dp-warning .dp-alarm{color:#b52219;font-weight:800} .dp-meter{height:12px;border-radius:999px;background:#e4edf2;position:relative;overflow:hidden;margin:7px 0 6px}.dp-meter span{height:100%;display:block;width:40%;background:#12a886;transition:width .12s,background .12s}.dp-meter i{position:absolute;top:0;bottom:0;left:70%;width:3px;background:#d0211e}.dp-alarm{font-size:11px;font-weight:600;color:#407284}svg .dp-alert-pulse{animation:dpWarning .65s ease-in-out infinite alternate}@keyframes dpWarning{from{opacity:1}to{opacity:.52}}@media(prefers-reduced-motion:reduce){#dpPanel.dp-warning,svg .dp-alert-pulse{animation:none}}
+.view-controls{display:flex;flex-wrap:wrap;gap:7px;margin:10px 0 4px}
+.view-controls button{font-size:12px;padding:9px 11px;min-height:38px}
+.view-controls button.active{background:#086183;color:white;border-color:#086183}
+.view-caption{font-size:12px;color:#506a7b;margin:7px 0 10px}
+#scene{aspect-ratio:auto;max-height:85svh}
+#scene.hide-labels .tag{display:none}
+#diagramPanel.diagram-expanded{position:fixed;inset:0;z-index:1000;max-width:none;width:100%;height:100dvh;margin:0;padding:10px;border-radius:0;overflow:auto;background:#f3f7fa}
+#diagramPanel.diagram-expanded #scene{width:100%;height:calc(100dvh - 145px);max-height:none}
+body.diagram-open{overflow:hidden}
+@media(orientation:landscape) and (max-height:560px){
+ #diagramPanel.diagram-expanded{padding:6px 12px}
+ #diagramPanel.diagram-expanded .hint,#diagramPanel.diagram-expanded .view-caption{display:none}
+ #diagramPanel.diagram-expanded #scene{height:calc(100dvh - 80px)}
+ #diagramPanel.diagram-expanded .view-controls{margin:5px 0}
+}
+
+/* v15: compact sticky process dashboard, diagram immediately below, options only on demand */
+.diagram-dashboard{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,.8fr) minmax(0,.8fr);gap:6px;position:sticky;top:0;z-index:9;padding:6px;background:#edf5fa;border-radius:9px;margin-bottom:5px;box-shadow:0 2px 8px #0b3b5325}
+.dash-block{background:#fff;border:1px solid #c9dce7;border-radius:7px;padding:7px 9px;min-width:0;display:flex;flex-direction:column;justify-content:center}
+.dash-label{font-size:11px;color:#476579;line-height:1.2}
+.dash-label small{display:block;font-size:10px;color:#527180}
+.dash-block strong{display:block;font-size:clamp(14px,3vw,21px);font-weight:800;white-space:nowrap;line-height:1.3;font-variant-numeric:tabular-nums}
+#dpLiveAlarm{font-size:10px;color:#187e5e;font-weight:700}
+.dash-meter{height:5px;background:#e0e9ef;border-radius:8px;position:relative;margin-top:3px;overflow:hidden}
+.dash-meter span{display:block;height:100%;width:40%;background:#15a67f}
+.dash-meter i{position:absolute;top:0;bottom:0;left:70%;width:2px;background:#c52723}
+.diagram-dashboard.high-dp .dash-dp{background:#fff1ee;border-color:#d93028;animation:dpWarning .7s ease-in-out infinite alternate}
+.diagram-dashboard.high-dp #dpLive,.diagram-dashboard.high-dp #dpLiveAlarm{color:#bb251e}
+.diagram-options{margin:2px 0 5px}
+.diagram-options summary{font-size:11px;font-weight:700;cursor:pointer;color:#245974;padding:5px 3px;list-style-position:inside;user-select:none}
+.diagram-options summary span{font-weight:400;color:#60798b}
+.diagram-options[open]{padding-bottom:5px}
+#diagramPanel .view-caption{margin:4px 0 0}
+@media(max-width:640px){
+ header h1{font-size:19px}header .sub{font-size:11px}header #runtime{font-size:10px!important;margin:2px 0 5px}
+ .stats{display:none}
+ #diagramPanel{padding:6px;margin-top:5px}
+ .diagram-dashboard{padding:3px;gap:4px}
+ .dash-block{padding:5px 6px}
+ .dash-label{font-size:10px}.dash-label small{font-size:9px}
+ .dash-block strong{font-size:17px}
+ #scene{margin:0}
+}
+#diagramPanel.diagram-expanded .diagram-dashboard{position:sticky;top:0;z-index:10}
+#diagramPanel.diagram-expanded #scene{height:calc(100dvh - 150px)}
+@media(orientation:landscape) and (max-height:560px){
+ #diagramPanel.diagram-expanded #scene{height:calc(100dvh - 85px)}
+ #diagramPanel.diagram-expanded .diagram-options{display:none}
+}
+@media(prefers-reduced-motion:reduce){.diagram-dashboard.high-dp .dash-dp{animation:none}}
+
+/* Requested-only adjustments: buttons remain in one row at smaller text size. */
+.view-controls{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px;flex-wrap:nowrap}
+.view-controls button{min-width:0;min-height:30px;padding:5px 2px;font-size:10px;line-height:1.15;white-space:normal}
+.controls{flex-wrap:nowrap;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px}
+.controls button{min-width:0;padding:7px 3px;font-size:11px;line-height:1.15;white-space:normal}
+.steps{grid-template-columns:repeat(4,minmax(0,1fr));gap:3px}
+.steps button{min-width:0;min-height:42px;font-size:9px;line-height:1.15;padding:5px 1px;overflow-wrap:anywhere}
+.devices button{font-size:11px;padding:5px 6px}
+@media(max-width:640px){
+ .steps{grid-template-columns:repeat(4,minmax(0,1fr))}
+ .steps button{font-size:8px;min-height:46px;padding:4px 1px}
+ .controls button{font-size:10px}
+ .view-controls button{font-size:9px}
+}
+/* Force the seven phase buttons to two rows even when older CSS is cached. */
+#steps{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;grid-template-rows:repeat(2,auto)!important}
+#steps button{min-width:0}
+#steps button:nth-child(5){grid-column:1;grid-row:2}
+#steps button:nth-child(6){grid-column:2;grid-row:2}
+#steps button:nth-child(7){grid-column:3;grid-row:2}
+/* v19: only requested stage-button height reduction */
+#steps{grid-auto-rows:min-content!important;align-content:start!important}
+#steps button{height:auto!important;min-height:0!important;padding:4px 2px!important;font-size:10px!important;line-height:1.15!important;border-radius:7px!important}
+@media(max-width:640px){#steps button{min-height:0!important;padding:4px 2px!important;font-size:10px!important;line-height:1.15!important}}
+/* v20 requested: unambiguously two compact rows, four then three. */
+#steps{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;grid-template-rows:32px 32px!important;grid-auto-rows:32px!important;align-items:stretch!important;gap:4px!important}
+#steps button{box-sizing:border-box!important;height:32px!important;min-height:32px!important;max-height:32px!important;padding:0 2px!important;margin:0!important;font-size:10px!important;line-height:1.1!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:clip!important;overflow-wrap:normal!important}
+#steps button:nth-child(-n+4){grid-row:1!important}
+#steps button:nth-child(5),#steps button:nth-child(6),#steps button:nth-child(7){grid-row:2!important}
+@media(max-width:640px){#steps{grid-template-rows:32px 32px!important}#steps button{height:32px!important;min-height:32px!important;max-height:32px!important;font-size:9px!important}}
+/* Alert dust status alongside high differential pressure, no other dashboard changes. */
+.diagram-dashboard.high-dp #cakeLive{color:#bd1c16!important}
+</style></head>
+<body><div class="wrap">
+<header><h1>ろ過式集じん器｜動作・制御シミュレーター</h1><div class="sub">焼却施設・パルスジェット式バグフィルタ｜操作型教材　<span id="buildmark" style="color:#006584;font-weight:bold">v54</span></div><p id="runtime" style="font-size:13px;color:#8a3c20">操作プログラムを読み込み中…</p></header>
+<div class="stats">
+<div class="stat" id="dpPanel"><small>ろ布差圧（模擬）・逆洗設定 1.40 kPa</small><strong id="dp">0.80 kPa</strong><div class="dp-meter"><span id="dpFill"></span><i></i></div><div id="dpAlarm" class="dp-alarm" role="status" aria-live="polite">正常：差圧は設定値未満</div></div>
+<div class="stat"><small>逆洗パルス弁</small><strong id="valve">閉</strong></div>
+<div class="stat"><small>ダスト付着</small><strong id="cake">少</strong></div>
+</div>
+<section class="panel" id="diagramPanel">
+<div class="diagram-dashboard" aria-label="アニメーション連動の運転状態">
+ <div class="dash-block dash-dp"><span class="dash-label">ろ布差圧 <small>設定 1.40 kPa</small></span><strong id="dpLive">0.80 kPa</strong><span id="dpLiveAlarm">正常</span><div class="dash-meter"><span id="dpLiveFill"></span><i></i></div></div>
+ <div class="dash-block"><span class="dash-label">ダスト</span><strong id="cakeLive">少</strong></div>
+ <div class="dash-block"><span class="dash-label">逆洗弁</span><strong id="valveLive">閉</strong></div>
+</div>
+<details class="diagram-options" id="diagramOptions">
+<summary>表示設定・拡大 <span>（タップして開く）</span></summary>
+<div class="view-controls" aria-label="表示の切り替え">
+<button class="active" data-view="all" aria-pressed="true">全体表示</button>
+<button data-view="bags" aria-pressed="false">ろ布拡大</button>
+<button data-view="pressure" aria-pressed="false">差圧制御拡大</button>
+<button id="toggleLabels" aria-pressed="false">機器名を隠す</button>
+<button id="expandDiagram" aria-pressed="false">⛶ 画面拡大</button>
+</div>
+<p class="view-caption" id="viewCaption">全体：排ガス入口からろ過・逆洗・出口まで表示しています。</p>
+</details>
+<svg id="scene" viewBox="0 0 940 570" role="img" aria-label="ろ過式集じん器の断面と誘引通風機の遠心羽根車">
+<defs><linearGradient id="pulseAirGradient" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#6b9dff" stop-opacity=".07"/><stop offset="28%" stop-color="#a8ccff" stop-opacity=".52"/><stop offset="50%" stop-color="#e4f5ff" stop-opacity=".86"/><stop offset="72%" stop-color="#a8ccff" stop-opacity=".52"/><stop offset="100%" stop-color="#6b9dff" stop-opacity=".07"/></linearGradient><clipPath id="dustCasingClip"><path d="M172 185H554V414L507 511H219L172 414Z"/></clipPath><clipPath id="fanclip"><circle cx="735" cy="166" r="29.5"/></clipPath><marker id="arrO" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0 0L6 3L0 6Z" fill="#f4aa51"/></marker><marker id="arrB" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0 0L6 3L0 6Z" fill="#55d8ec"/></marker></defs>
+<!-- Body / dirty inlet / clean upper chamber -->
+<path d="M166 100H560V415L511 517H215L166 415Z" fill="#233e53" stroke="#9fbed1" stroke-width="3"/>
+<rect x="169" y="103" width="388" height="75" fill="#145775" opacity=".85"/>
+<path d="M168 180H558" stroke="#d6e7f1" stroke-width="8"/>
+<!-- Inlet below the tube sheet, near hopper shoulder; inlet deflector turns the dusty stream toward the bag exteriors. -->
+<path d="M55 367H166V410H55Z" fill="#6c4c38" stroke="#dab181" stroke-width="2"/>
+<path class="flow dirty" d="M61 389H156" marker-end="url(#arrO)"/>
+<path d="M193 361L198 399Q199 405 204 409" stroke="#a7b7bf" stroke-width="7" fill="none" stroke-linecap="round"/>
+<g id="dirtyflow"><path class="flow dirty" d="M174 410Q184 422 214 434 M222 431Q261 402 267 335 M315 418Q357 401 360 330 M409 418Q453 401 455 329"/></g>
+<!-- pressure difference alert wash: red only when threshold is reached -->
+<rect id="dpHighZone" x="170" y="187" width="384" height="248" rx="10" fill="#ff4637" opacity="0" pointer-events="none"/>
+<g id="dpHighLabel" style="display:none" pointer-events="none"><rect x="285" y="374" width="206" height="39" rx="8" fill="#a9231c" stroke="#ffb3aa" stroke-width="2"/><text x="388" y="399" text-anchor="middle" style="font-size:17px;font-weight:800">差圧上限到達！</text></g>
+<!-- bags: four independent rows/illustrative section -->
+<g id="bags"><g data-bag="0"><path d="M196 186H232V395Q214 415 196 395Z" fill="#c3d6df" stroke="#ecf7fc" stroke-width="2"/><path d="M204 195V392 M214 195V404 M224 195V392" stroke="#7192a4" stroke-dasharray="4 4" fill="none"/><path class="cake" d="M193 189V395Q214 421 235 395V189" fill="none" stroke="#f1a85a" stroke-width="6" stroke-dasharray="4 5" opacity=".25"/><path class="flow clean" d="M214 385V192"/></g><g data-bag="1"><path d="M289 186H325V395Q307 415 289 395Z" fill="#c3d6df" stroke="#ecf7fc" stroke-width="2"/><path d="M297 195V392 M307 195V404 M317 195V392" stroke="#7192a4" stroke-dasharray="4 4" fill="none"/><path class="cake" d="M286 189V395Q307 421 328 395V189" fill="none" stroke="#f1a85a" stroke-width="6" stroke-dasharray="4 5" opacity=".25"/><path class="flow clean" d="M307 385V192"/></g><g data-bag="2"><path d="M382 186H418V395Q400 415 382 395Z" fill="#c3d6df" stroke="#ecf7fc" stroke-width="2"/><path d="M390 195V392 M400 195V404 M410 195V392" stroke="#7192a4" stroke-dasharray="4 4" fill="none"/><path class="cake" d="M379 189V395Q400 421 421 395V189" fill="none" stroke="#f1a85a" stroke-width="6" stroke-dasharray="4 5" opacity=".25"/><path class="flow clean" d="M400 385V192"/></g><g data-bag="3"><path d="M475 186H511V395Q493 415 475 395Z" fill="#c3d6df" stroke="#ecf7fc" stroke-width="2"/><path d="M483 195V392 M493 195V404 M503 195V392" stroke="#7192a4" stroke-dasharray="4 4" fill="none"/><path class="cake" d="M472 189V395Q493 421 514 395V189" fill="none" stroke="#f1a85a" stroke-width="6" stroke-dasharray="4 5" opacity=".25"/><path class="flow clean" d="M493 385V192"/></g></g>
+<g id="fallgroup" style="display:none" fill="#f6ac61">
+<circle class="dustfall" cx="224" cy="411" r="5"/><circle class="dustfall" cx="255" cy="424" r="4"/><circle class="dustfall" cx="302" cy="410" r="5"/><circle class="dustfall" cx="342" cy="425" r="4"/><circle class="dustfall" cx="390" cy="417" r="4"/>
+</g>
+<g id="peelingAsh" style="display:none" pointer-events="none">
+  <path d="M185 217V402 M244 217V402" fill="none" stroke="#f4ad56" stroke-width="3" stroke-dasharray="5 9" opacity=".7"/>
+  <g class="ash-stream">
+    <circle cx="184" cy="252" r="6"/><circle cx="246" cy="270" r="6"/>
+    <circle cx="180" cy="300" r="4"/><circle cx="249" cy="321" r="5"/>
+    <circle cx="181" cy="348" r="5"/><circle cx="246" cy="364" r="4"/>
+  </g>
+  <g class="ash-stream ash-delayed">
+    <circle cx="183" cy="242" r="4"/><circle cx="248" cy="298" r="5"/>
+    <circle cx="179" cy="336" r="4"/><circle cx="250" cy="392" r="6"/>
+  </g>
+</g>
+<g id="hopperAsh" style="display:none" pointer-events="none">
+  <path d="M203 472Q285 477 364 472" stroke="#f4ad56" stroke-width="10" stroke-linecap="round" fill="none" opacity=".9"/>
+  <circle class="ash-drop" cx="220" cy="436" r="5"/><circle class="ash-drop ash-delayed" cx="260" cy="449" r="4"/><circle class="ash-drop" cx="316" cy="438" r="5"/>
+</g>
+<!-- DUST BUILDUP + RAPID RELEASE: static container; original four bags and 7 stages preserved -->
+<g id="dustCoatings" pointer-events="none">
+  <g class="dust-coat-row" data-coat-row="0" transform="translate(0 0)" stroke="#d68a39" stroke-linecap="round" fill="none"><path class="coat-left" d="M193 203V395Q214 420 235 395V203" stroke-width="4" opacity=".55"/><path class="coat-grain" d="M190 224V383 M238 230V389" stroke-width="4" stroke-dasharray="3 8" opacity=".6"/></g>
+<g class="dust-coat-row" data-coat-row="1" transform="translate(93 0)" stroke="#d68a39" stroke-linecap="round" fill="none"><path class="coat-left" d="M193 203V395Q214 420 235 395V203" stroke-width="4" opacity=".55"/><path class="coat-grain" d="M190 224V383 M238 230V389" stroke-width="4" stroke-dasharray="3 8" opacity=".6"/></g>
+<g class="dust-coat-row" data-coat-row="2" transform="translate(186 0)" stroke="#d68a39" stroke-linecap="round" fill="none"><path class="coat-left" d="M193 203V395Q214 420 235 395V203" stroke-width="4" opacity=".55"/><path class="coat-grain" d="M190 224V383 M238 230V389" stroke-width="4" stroke-dasharray="3 8" opacity=".6"/></g>
+<g class="dust-coat-row" data-coat-row="3" transform="translate(279 0)" stroke="#d68a39" stroke-linecap="round" fill="none"><path class="coat-left" d="M193 203V395Q214 420 235 395V203" stroke-width="4" opacity=".55"/><path class="coat-grain" d="M190 224V383 M238 230V389" stroke-width="4" stroke-dasharray="3 8" opacity=".6"/></g>
+</g>
+<g id="dustAvalanche" clip-path="url(#dustCasingClip)" pointer-events="none" fill="#ffc06a" stroke="#9e642b" stroke-width="1.2"></g>
+<g id="dustPile" pointer-events="none">
+ <path id="dustPileShape" d="M203 498Q260 498 317 498Z" fill="#c48b40" stroke="#ffc377" stroke-width="1" opacity=".4"/>
+</g>
+<!-- Hopper dust motion: settling pile, sliding to central outlet, metered rotary discharge -->
+<g id="hopperMotion" pointer-events="none">
+ <g id="hopperSlides" style="display:none" fill="#e5a24e" stroke="#ffcf7d" stroke-width="1.1">
+  <path id="slideLeft" d="M242 466l12 -7 14 4 4 9 -19 9 -12 -7Z"/>
+  <path id="slideRight" d="M486 460l-15 -6 -12 7 -2 9 22 6 10 -8Z"/>
+ </g>
+ <g id="hopperFlow" style="display:none" fill="#edb15a" stroke="#ffcd85" stroke-width=".8">
+  <circle data-hopper-grain="0" r="4"/><circle data-hopper-grain="1" r="5"/>
+  <circle data-hopper-grain="2" r="3"/><circle data-hopper-grain="3" r="4"/>
+  <circle data-hopper-grain="4" r="5"/><circle data-hopper-grain="5" r="3"/>
+  <circle data-hopper-grain="6" r="4"/><circle data-hopper-grain="7" r="3"/>
+ </g>
+</g>
+<text id="dustActionText" x="269" y="450" style="font-size:15px;font-weight:800;fill:#ffca70;display:none" pointer-events="none">ダストが一気に剥離・落下！</text>
+<!-- compressed air system -->
+<path d="M180 57H524" stroke="#5087a2" stroke-width="18" stroke-linecap="round"/>
+<rect id="pulseValve" x="235" y="49" width="47" height="36" rx="5" fill="#4e5269" stroke="#c5a4f1" stroke-width="2"/>
+<rect id="solenoid" x="247" y="21" width="24" height="20" rx="3" fill="#62768b" stroke="#d9e8f4"/>
+<path d="M259 41V49M259 85V92H493M259 92H214V111" stroke="#c3a0e3" stroke-width="7" fill="none"/>
+<g id="pulseBranches" stroke="#c3a0e3" stroke-width="5" stroke-linecap="round" fill="none"><path d="M214 92V116M307 92V116M400 92V116M493 92V116"/></g>
+<g id="jet" style="display:none" pointer-events="none"><g class="pulse-plume" style="animation-delay:-0.000s">
+ <path d="M210 116 Q199 171 196 241 Q214 258 232 241 Q229 171 218 116Z" fill="url(#pulseAirGradient)" opacity=".92"/>
+ <path d="M214 116V279" stroke="#ecf7ff" stroke-width="5.5" stroke-linecap="round" stroke-dasharray="21 15" class="pulse-core"/>
+ <path d="M204 158 Q200 195 203 229 M224 158 Q228 195 225 229" stroke="#b8e5ff" stroke-width="2.5" stroke-linecap="round" fill="none" opacity=".85"/>
+ <path d="M202 244 Q214 260 226 244" stroke="#e4f7ff" stroke-width="3" fill="none" opacity=".8"/>
+ </g>
+<g class="pulse-plume" style="animation-delay:-0.035s">
+ <path d="M303 116 Q292 171 289 241 Q307 258 325 241 Q322 171 311 116Z" fill="url(#pulseAirGradient)" opacity=".92"/>
+ <path d="M307 116V279" stroke="#ecf7ff" stroke-width="5.5" stroke-linecap="round" stroke-dasharray="21 15" class="pulse-core"/>
+ <path d="M297 158 Q293 195 296 229 M317 158 Q321 195 318 229" stroke="#b8e5ff" stroke-width="2.5" stroke-linecap="round" fill="none" opacity=".85"/>
+ <path d="M295 244 Q307 260 319 244" stroke="#e4f7ff" stroke-width="3" fill="none" opacity=".8"/>
+ </g>
+<g class="pulse-plume" style="animation-delay:-0.070s">
+ <path d="M396 116 Q385 171 382 241 Q400 258 418 241 Q415 171 404 116Z" fill="url(#pulseAirGradient)" opacity=".92"/>
+ <path d="M400 116V279" stroke="#ecf7ff" stroke-width="5.5" stroke-linecap="round" stroke-dasharray="21 15" class="pulse-core"/>
+ <path d="M390 158 Q386 195 389 229 M410 158 Q414 195 411 229" stroke="#b8e5ff" stroke-width="2.5" stroke-linecap="round" fill="none" opacity=".85"/>
+ <path d="M388 244 Q400 260 412 244" stroke="#e4f7ff" stroke-width="3" fill="none" opacity=".8"/>
+ </g>
+<g class="pulse-plume" style="animation-delay:-0.105s">
+ <path d="M489 116 Q478 171 475 241 Q493 258 511 241 Q508 171 497 116Z" fill="url(#pulseAirGradient)" opacity=".92"/>
+ <path d="M493 116V279" stroke="#ecf7ff" stroke-width="5.5" stroke-linecap="round" stroke-dasharray="21 15" class="pulse-core"/>
+ <path d="M483 158 Q479 195 482 229 M503 158 Q507 195 504 229" stroke="#b8e5ff" stroke-width="2.5" stroke-linecap="round" fill="none" opacity=".85"/>
+ <path d="M481 244 Q493 260 505 244" stroke="#e4f7ff" stroke-width="3" fill="none" opacity=".8"/>
+ </g></g>
+<!-- Controller signal -->
+<rect x="18" y="17" width="134" height="48" rx="6" fill="#2d5068" stroke="#a0bccf"/>
+<text x="85" y="38" text-anchor="middle" font-weight="bold">逆洗制御盤</text><text x="85" y="55" font-size="10" text-anchor="middle">差圧・タイマー</text>
+<path id="signal" d="M152 40H209V30H247" fill="none" stroke="#688295" stroke-dasharray="5 5" stroke-width="3"/>
+<!-- Clean gas to outlet -->
+<!-- Filtered gas exits the clean plenum, descends to the ID fan inlet. -->
+<path d="M560 130H664V337H695V371H630V167H560Z" fill="#205670" stroke="#a7c5d5" stroke-width="2"/>
+<path class="flow clean" d="M569 148H647V354H697" marker-end="url(#arrB)"/>
+<!-- Fan delivery duct rises to the stack; no direct baghouse-to-stack bypass. -->
+<path d="M828 386H858V422H828Z" fill="#205670" stroke="#a7c5d5" stroke-width="2"/>
+<!-- Centrifugal ID fan: schematic of axial inlet, scroll volute, tangential discharge -->
+<g id="fanbody" transform="translate(0 188)">
+<path d="M735 109C771 109 802 137 802 172C802 183 800 192 795 198H832V234H770V213C759 219 748 221 735 221C704 221 681 197 681 166C681 135 704 109 735 109Z" fill="#294d64" stroke="#9dc3d7" stroke-width="3"/>
+<circle cx="735" cy="166" r="35" fill="#193445" stroke="#8cc2d9" stroke-width="2.5"/>
+<g clip-path="url(#fanclip)"><g class="fanrotor" id="fanrotor">
+<circle cx="735" cy="166" r="29" fill="#23485c" stroke="#6da7bf" stroke-width="1.2"/>
+<g transform="translate(735 166)" fill="#75c7dc" stroke="#c2edfa" stroke-width="0.8" stroke-linejoin="round">
+<path d="M5 -5 Q12 -22 24 -15 Q19 -10 13 -6 L6 3Z" transform="rotate(0)"/>
+<path d="M5 -5 Q12 -22 24 -15 Q19 -10 13 -6 L6 3Z" transform="rotate(60)"/>
+<path d="M5 -5 Q12 -22 24 -15 Q19 -10 13 -6 L6 3Z" transform="rotate(120)"/>
+<path d="M5 -5 Q12 -22 24 -15 Q19 -10 13 -6 L6 3Z" transform="rotate(180)"/>
+<path d="M5 -5 Q12 -22 24 -15 Q19 -10 13 -6 L6 3Z" transform="rotate(240)"/>
+<path d="M5 -5 Q12 -22 24 -15 Q19 -10 13 -6 L6 3Z" transform="rotate(300)"/>
+<circle r="7" fill="#164052" stroke="#bce8f2" stroke-width="1.6"/>
+<circle r="2.5" fill="#ecfaff"/>
+</g></g></g>
+<text x="804" y="242" font-size="11">吐出</text><text x="680" y="110" font-size="11">吸込（軸方向）</text>
+</g>
+<!-- Stack: ID fan discharge enters at its base, then cleaned gas travels upward. -->
+<g id="stack" pointer-events="none">
+<path d="M857 458V86H901V458Z" fill="#29485d" stroke="#a7c5d5" stroke-width="3"/>
+<path d="M867 447V98H891V447" fill="none" stroke="#346c86" stroke-width="2"/>
+<rect x="853" y="83" width="52" height="10" rx="3" fill="#597f94" stroke="#cae0eb" stroke-width="1.5"/>
+<path class="flow clean" d="M838 404H879V113" marker-end="url(#arrB)" stroke-width="4"/>
+<text x="877" y="65" text-anchor="middle" style="font-size:17px;font-weight:800;fill:#a5ecf7">煙突</text>
+<text x="844" y="470" style="font-size:11px;fill:#9ce3ee">放流ガス</text>
+</g>
+<!-- Rotary discharge -->
+<!-- Hopper bottom discharge feeds the rotary valve directly -->
+<path d="M343 516H383V524H343Z" fill="#977145" stroke="#edbd75" stroke-width="2"/>
+<path id="hopperToRotary" d="M363 508V530" stroke="#edaa59" stroke-width="6" stroke-dasharray="4 5"/>
+<rect x="339" y="523" width="48" height="42" rx="7" fill="#2d526a" stroke="#a8c7d8" stroke-width="2"/>
+<g class="rotor"><circle cx="363" cy="544" r="18" fill="#15354a" stroke="#96c8d9"/><path d="M345 544H381M363 526V562M350 531L376 557M376 531L350 557" stroke="#8bd4e6" stroke-width="4"/></g>
+<g id="rotaryDischarge" style="display:none" fill="#f2b768"><circle cx="351" cy="563" r="3"/><circle cx="363" cy="564" r="4"/><circle cx="374" cy="563" r="3"/></g>
+<!-- Continuous material-flow overlay: orange dust-containing gas to bag exterior, cyan filtered gas all the way to outlet -->
+<g id="materialFlows" pointer-events="none">
+ <path id="trackDirtyA" d="M75 389 L153 389 Q173 393 181 415 Q195 438 193 344 L193 270" fill="none" stroke="#ffb158" stroke-width="2" stroke-dasharray="5 8" opacity="0"/>
+ <path id="trackDirtyB" d="M75 389 L158 389 Q218 438 267 409 Q284 390 286 300 L286 270" fill="none" stroke="#ffb158" stroke-width="2" stroke-dasharray="5 8" opacity="0"/>
+ <path id="trackDirtyC" d="M75 389 L158 389 Q281 443 359 410 Q379 375 379 303 L379 270" fill="none" stroke="#ffb158" stroke-width="2" stroke-dasharray="5 8" opacity="0"/>
+ <path id="trackDirtyD" d="M75 389 L158 389 Q351 443 451 410 Q469 372 472 300 L472 270" fill="none" stroke="#ffb158" stroke-width="2" stroke-dasharray="5 8" opacity="0"/>
+ <path id="trackCleanA" d="M196 260 L214 260 L214 186 L214 147 L555 147 L626 147 L647 147 L647 354 L707 354 Q735 354 760 373 L805 403 L879 403 L879 105" fill="none" stroke="#55d8ec" stroke-width="3" opacity=".65"/>
+ <path id="trackCleanB" d="M289 260 L307 260 L307 186 L307 147 L555 147 L626 147 L647 147 L647 354 L707 354 Q735 354 760 373 L805 403 L879 403 L879 105" fill="none" stroke="#55d8ec" stroke-width="2" opacity=".35"/>
+ <path id="trackCleanC" d="M382 260 L400 260 L400 186 L400 147 L555 147 L626 147 L647 147 L647 354 L707 354 Q735 354 760 373 L805 403 L879 403 L879 105" fill="none" stroke="#55d8ec" stroke-width="2" opacity=".35"/>
+ <path id="trackCleanD" d="M475 260 L493 260 L493 186 L493 147 L555 147 L626 147 L647 147 L647 354 L707 354 Q735 354 760 373 L805 403 L879 403 L879 105" fill="none" stroke="#55d8ec" stroke-width="2" opacity=".35"/>
+ <path id="trackAsh" d="M186 278 Q181 350 189 411 L233 460 L270 490" fill="none" stroke="#ffc96c" stroke-width="2" stroke-dasharray="5 9" opacity="0"/>
+ <g id="dirtyParticles" fill="#ff9e3f" stroke="#ffda93" stroke-width=".8"></g>
+ <g id="cleanParticles" fill="#50e8ff" stroke="#c7faff" stroke-width=".8"></g>
+ <g id="ashParticles" fill="#ffce6e" stroke="#ffe7af" stroke-width=".9"></g>
+ <text x="145" y="382" text-anchor="end" style="font-size:15px;fill:#ffbf72;font-weight:700">① 粉じんを含む排ガス</text>
+ <text x="554" y="104" style="font-size:15px;fill:#8feeff;font-weight:700">③ 清浄ガス →</text>
+ <text x="703" y="501" style="font-size:15px;fill:#8feeff;font-weight:700">④ IDF → 煙突 ↑</text>
+ <text x="299" y="477" style="font-size:15px;fill:#ffd17e;font-weight:700">② 捕集ダスト ↓</text>
+</g>
+<!-- animated attention box -->
+<rect id="focus" x="167" y="183" width="390" height="260" rx="6" fill="none" stroke="none" pointer-events="none" style="display:none"/>
+<g class="tag" data-device="inlet" transform="translate(29 277)"><rect width="113" height="28" rx="5"/><text x="56" y="18" text-anchor="middle">排ガス入口</text></g>
+<g class="tag" data-device="controller" transform="translate(12 81)"><rect width="125" height="28" rx="5"/><text x="62" y="18" text-anchor="middle">逆洗制御盤</text></g>
+<g class="tag" data-device="valve" transform="translate(297 31)"><rect width="119" height="28" rx="5"/><text x="59" y="18" text-anchor="middle">電磁弁・主弁</text></g>
+<g class="tag" data-device="header" transform="translate(443 34)"><rect width="123" height="28" rx="5"/><text x="61" y="18" text-anchor="middle">エアヘッダ</text></g>
+<g class="tag" data-device="nozzle" transform="translate(388 111)"><rect width="162" height="28" rx="5"/><text x="81" y="18" text-anchor="middle">噴射管・ノズル</text></g>
+<g class="tag" data-device="clean" transform="translate(174 123)"><rect width="93" height="28" rx="5"/><text x="46" y="18" text-anchor="middle">清浄室</text></g>
+<g class="tag" data-device="bags" transform="translate(295 313)"><rect width="145" height="30" rx="5"/><text x="72" y="19" text-anchor="middle">ろ布・リテーナ</text></g>
+<g class="tag" data-device="hopper" transform="translate(238 460)"><rect width="93" height="28" rx="5"/><text x="46" y="18" text-anchor="middle">ホッパ</text></g>
+<g class="tag" data-device="rotary" transform="translate(395 529)"><rect width="143" height="28" rx="5"/><text x="71" y="18" text-anchor="middle">ロータリーバルブ</text></g>
+<g class="tag" data-device="fan" transform="translate(679 446)"><rect width="145" height="28" rx="5"/><text x="72" y="18" text-anchor="middle">誘引通風機（IDF）</text></g>
+<g class="tag" data-device="dp" transform="translate(18 133)"><rect width="81" height="28" rx="5"/><text x="40" y="18" text-anchor="middle">差圧計</text></g>
+</svg>
+<div class="legend"><span>🟠 含じんガス・ダスト</span><span>🔵 清浄ガス</span><span>🟣 逆洗空気</span><span>🟡 注目範囲</span></div>
+
+</section>
+<section class="panel">
+<div class="controls"><button class="primary" id="play">▶ 再生</button><button id="next">次工程 ›</button><button id="reset">↺ 最初から</button><button id="speed">速度 ×1</button></div>
+<p><small id="clock">0.0 秒 / 28.0 秒</small></p><input id="seek" type="range" min="0" max="280" value="0" aria-label="時間移動">
+<div class="steps" id="steps" style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));grid-template-rows:repeat(2,auto);gap:4px"><button data-stage="0">01 排ガス流入</button><button data-stage="1">02 ろ過・捕集</button><button data-stage="2">03 差圧上昇</button><button data-stage="3">04 逆洗指令</button><button data-stage="4">05 パルス逆洗</button><button data-stage="5">06 ダスト落下</button><button data-stage="6">07 排灰・安定</button></div>
+</section>
+<section class="panel"><small id="stepno">STEP 1 / 7</small><h2 id="phasetitle">① 排ガス流入</h2><p id="phasedesc"></p><div class="explain"><strong>この工程で見る動き</strong><p id="watch"></p></div></section>
+<section class="panel"><h2>機器を押すと説明が表示されます</h2><div class="devices" id="devices"></div><div class="detail panel" style="background:#f2f7fa"><h3 id="devtitle"></h3><p id="devdesc"></p><p><strong>作動タイミング：</strong><span id="devwhen"></span></p><p><strong>点検：</strong><span id="devcheck"></span></p></div></section>
+<p class="note">教育用モデル。28秒の工程表示・差圧値・逆洗時間は実機の設定値ではありません。実際の逆洗は対象列ごとに短時間行い、他列ではろ過を継続します。機器構成はプラントにより異なります。</p>
+</div><script>
+(function(){
+try {
+const $=id=>document.getElementById(id),ns="http://www.w3.org/2000/svg";
+/* Use bag body geometry as the source of truth for pulse branches and jet plumes.
+   All positions remain in SVG viewBox units, so mobile scaling cannot desynchronize them. */
+function alignPulseToBags(){
+ const bodies=[...document.querySelectorAll('#bags > g[data-bag] > path:first-child')];
+ const branches=document.querySelector('#pulseBranches path');
+ const plumes=[...document.querySelectorAll('#jet > .pulse-plume')];
+ if(bodies.length!==4||!branches||plumes.length!==4)return;
+ const centers=bodies.map(el=>{const b=el.getBBox();return +(b.x+b.width/2).toFixed(2)});
+ branches.setAttribute('d',centers.map(x=>'M'+x+' 92V116').join(''));
+ plumes.forEach((p,i)=>{
+   const originally=[214,307,400,493][i];
+   p.setAttribute('transform','translate('+(centers[i]-originally).toFixed(2)+' 0)');
+ });
+}
+
+const phases=[
+["排ガス流入","誘引通風機が連続運転し、含じんガスがろ過室に入る。","オレンジ色の粒子が入口から各ろ布の外面へ到達します。",.8,"閉","少",[52,306,190,68],"inlet"],
+["ろ過・捕集","ガスはろ布の外側から内側へ通過。ばいじんは外面に蓄積し、清浄ガスは上部へ流れる。","時間経過で左端ろ布の外側に茶色のダスト層が徐々に厚くなります。ガスはろ過され、水色粒子が右端の出口へ流れます。",.9,"閉","増加",[169,180,389,265],"bags"],
+["差圧上昇","ダスト層が増えて通気抵抗が上昇。模擬差圧が1.40 kPaに達すると、差圧表示とろ過室が赤く点滅し、逆洗要求の条件成立を知らせる。","差圧が1.40 kPaに到達すると赤表示に変わります。「圧力が溜まる」ではなく、ろ布の前後の圧力差が増える状態です。",1.5,"閉","多",[10,10,153,108],"dp"],
+["逆洗指令","差圧上限到達を制御盤が判定し、対象列への逆洗指令を出す。続いて電磁弁・主弁が作動する（模擬シーケンス）。","電磁弁と信号線が点灯。",1.5,"開指令","多",[205,13,215,105],"valve"],
+["パルス逆洗","主弁の急開で圧縮空気が噴射管から対象列に流入。ろ布が変形してダストを剥離。","左端ろ布の厚く堆積したダストがパルス噴射直後に一気に剥がれ、厚いダスト層が板状の塊でガサッと剥がれ、ホッパへ落ちます。ほかの列はろ過を継続します。",1.3,"瞬間開","剥離",[181,98,91,343],"nozzle"],
+["ダスト落下","剥離したダストがホッパに落下。ろ過を再開した対象列の抵抗が低下する。","ダスト粒子が下へ落ち、対象列の付着層が減る。",1.05,"閉","減少",[175,343,365,175],"hopper"],
+["排灰・安定","ホッパで集めたダストを底部のロータリーバルブへ送り、回転羽根で下側へ排出。内部の気密を保ちながら排灰する。","ホッパ直下のバルブが回転し、ダストが下側に排出されます。",.82,"閉","少",[332,506,213,63],"rotary"]
+];
+const devices={
+inlet:["排ガス入口","含じん排ガスを集じん器のろ過室へ導入する。","ろ過運転中は連続流入。","温度・堆積・閉塞"],
+controller:["逆洗制御盤","差圧やタイマーに応じ逆洗対象列へ信号を出す。","逆洗条件成立時。","設定・作動履歴・信号出力"],
+dp:["差圧計","ろ布前後の圧力差を監視し、目詰まりや逆洗状態を把握する。","運転中は連続監視。","導圧管・ゼロ点・異常値"],
+valve:["電磁弁・ダイヤフラム主弁","電磁弁がパイロット回路を動かし、主弁が圧縮空気を一気に放出する。","対象列の逆洗指令時に短時間作動。","コイル・弁膜・漏気"],
+header:["圧縮空気ヘッダ","逆洗に用いる空気を蓄え主弁に供給する。","通常は蓄圧、逆洗時に供給。","供給圧・ドレン・漏れ"],
+nozzle:["噴射管・ノズル","ろ布開口部に向けて圧縮空気を噴射する。","パルス弁開放時。","噴射位置・閉塞"],
+clean:["清浄室","ろ布通過後のガスを集め、出口へ送る。","ろ過中連続。","ダスト漏出・シール"],
+bags:["ろ布・リテーナ","外面でばいじんを捕集。リテーナがろ布の形を支える。","通常ろ過・対象列の逆洗時。","破れ・脱落・目詰まり"],
+hopper:["ホッパ","剥離・落下したダストを集める。","捕集・逆洗・排灰中。","詰まり・ブリッジ"],
+rotary:["ロータリーバルブ","回転羽根でダストを排出し気密性を維持する。","このモデルでは連続運転。実設備は方式に依存。","噛み込み・摩耗"],
+fan:["誘引通風機（IDF）","遠心式羽根車の中心側から軸方向に吸込み、遠心方向へ加速、スクロールケーシングで集めて接線方向に吐出する。","排ガス処理系統の運転中は原則連続運転。","振動・軸受・風量・ダンパ"]
+};
+const bg=$("bags");for(let i=0;i<0;i++){let x=189+i*93,g=document.createElementNS(ns,"g");g.setAttribute("data-bag",i);g.innerHTML='<path d="M'+x+' 186H'+(x+51)+'V414Q'+(x+25)+' 432 '+x+' 414Z" fill="#c3d6df" stroke="#ecf7fc" stroke-width="2"/><path d="M'+(x+10)+' 195V406 M'+(x+25)+' 195V420 M'+(x+40)+' 207V330" stroke="#7192a4" stroke-dasharray="4 4" fill="none"/><path class="cake" d="M'+(x-4)+' 189V414Q'+(x+25)+' 438 '+(x+55)+' 414V189" fill="none" stroke="#f1a85a" stroke-width="6" stroke-dasharray="4 5"/><path class="flow clean" d="M'+(x+25)+' 396V192"/>';bg.appendChild(g)}
+let time=0,playing=false,speed=1,last=0,current=-1,selected="bags";
+const particles=[];
+function makeParticles(){
+ const defs=[
+  ["dirty","trackDirtyA",5,"dirtyParticles",5.5],["dirty","trackDirtyB",4,"dirtyParticles",4.5],
+  ["dirty","trackDirtyC",4,"dirtyParticles",4.5],["dirty","trackDirtyD",4,"dirtyParticles",4.5],
+  ["clean","trackCleanA",9,"cleanParticles",5.5],["clean","trackCleanB",5,"cleanParticles",4],
+  ["clean","trackCleanC",5,"cleanParticles",4],["clean","trackCleanD",5,"cleanParticles",4],
+  ["ash","trackAsh",8,"ashParticles",5]
+ ];
+ defs.forEach(([kind,id,n,group,radius])=>{
+   const path=$(id); const parent=$(group);if(!path||!parent)return;
+   for(let k=0;k<n;k++){
+     const c=document.createElementNS(ns,"circle");
+     c.setAttribute("r",radius);parent.appendChild(c);
+     particles.push({c,path,len:path.getTotalLength(),start:k/n,kind});
+   }
+ });
+}
+let particleClock=0;
+function positionParticles(){
+ const stage=Math.min(6,Math.floor(time/4));
+ particles.forEach((p,index)=>{
+   const isAsh=p.kind==="ash";
+   const enabled=!isAsh || (stage===4 || stage===5);
+   p.c.style.display=enabled?"":"none";
+   if(!enabled)return;
+   const rate=p.kind==="clean"?.13:p.kind==="ash"?.38:.18;
+   const progress=(p.start+particleClock*rate)%1;
+   const q=p.path.getPointAtLength(p.len*progress);
+   p.c.setAttribute("cx",q.x);p.c.setAttribute("cy",q.y);
+ });
+}
+makeParticles();
+
+function choose(k){selected=k;let d=devices[k];$("devtitle").textContent=d[0];$("devdesc").textContent=d[1];$("devwhen").textContent=d[2];$("devcheck").textContent=d[3];document.querySelectorAll("[data-device]").forEach(n=>n.classList.toggle("selected",n.dataset.device===k));document.querySelectorAll("[data-devbutton]").forEach(n=>n.classList.toggle("active",n.dataset.devbutton===k))}
+Object.entries(devices).forEach(([k,v])=>{let b=document.createElement("button");b.textContent=v[0];b.dataset.devbutton=k;b.onclick=()=>choose(k);$("devices").appendChild(b)});
+document.querySelectorAll("svg [data-device]").forEach(e=>e.addEventListener("click",()=>choose(e.dataset.device)));
+document.querySelectorAll("#steps [data-stage]").forEach(b=>{b.onclick=()=>{time=Number(b.dataset.stage)*4+(Number(b.dataset.stage)===4?1.7:0);playing=false;render(true)}});
+
+const burstChunks=[];
+(function setupBurst(){
+ const host=$("dustAvalanche");
+ // Irregular, wide pieces of filter cake (not a rain of round particles).
+ // Two strips on the exterior of A-row bag break free nearly together.
+ const pieces=[
+  [191,227,0,0], [237,232,1,0], [191,268,0,1], [237,277,1,1],
+  [191,309,0,2], [237,319,1,2], [191,350,0,3], [237,357,1,3],
+  [191,379,0,4], [237,386,1,4], [197,395,0,5], [231,397,1,5]
+ ];
+ for(let bag=0;bag<4;bag++){
+   pieces.forEach(([sx,sy,side,row],index)=>{
+     const group=document.createElementNS(ns,"g");
+     const p=document.createElementNS(ns,"path");
+     const w=(16+(index%3)*5)*.45, ht=(24+(index%4)*4)*.45;
+     // Exactly the v19 flake shape, color, and synchronized release for all four bags.
+     const d="M"+(-w*.65)+" "+(-ht*.58)+"L"+(w*.16)+" "+(-ht*.62)+
+       "L"+(w*.55)+" "+(-ht*.27)+"L"+(w*.67)+" "+(ht*.26)+
+       "L"+(w*.24)+" "+(ht*.57)+"L"+(-w*.46)+" "+(ht*.42)+
+       "L"+(-w*.71)+" "+(ht*.05)+"Z";
+     p.setAttribute("d",d);
+     p.setAttribute("fill",index%3===0?"#8d562a":index%3===1?"#a86b34":"#b77b3f");
+     p.setAttribute("stroke","#f4c078"); p.setAttribute("stroke-width",".65");
+     group.appendChild(p);host.appendChild(group);
+     burstChunks.push({el:group,sx:sx+bag*93,sy,side,row,index,bag});
+   });
+ }
+})();
+function updateDustBuildup(stage,f){
+ // Preserve current coating buildup outside pulse; use v19's thick peeling
+ // cake silhouette and abrupt breakaway on the A bag during the detachment.
+ const growth=stage===0?.06:stage===1?.12+.48*f:stage===2?.60+.40*f:1;
+ document.querySelectorAll(".dust-coat-row").forEach((row,bag)=>{
+   const coating=row.querySelector(".coat-left"),grains=row.querySelector(".coat-grain");
+   const isV19Breakaway=(stage===4);
+   const level=stage<4?growth:stage===4?(f<.13?1:Math.max(.07,1-(f-.13)*5.8)):.07;
+   const oldLevel=stage===4?(f<.13?1:Math.max(.08,1-(f-.13)*5.8)):.08;
+   coating.setAttribute("stroke-width",String((isV19Breakaway?3+oldLevel*21:2.3+level*5.5)*2/3));
+   grains.setAttribute("stroke-width",String((isV19Breakaway?2+oldLevel*11:1.2+level*3)*2/3));
+   coating.setAttribute("opacity",String(isV19Breakaway?.2+oldLevel*.77:.25+level*.70));
+   grains.setAttribute("opacity",String(isV19Breakaway?.1+oldLevel*.84:.15+level*.65));
+ });
+ // One sudden synchronized detachment, then coherent cake slabs tumble into hopper.
+ const release=stage===4||stage===5;
+ const progress=stage===4?.62*f:stage===5?.62+.38*f:1;
+ $("dustAvalanche").style.display=release?"":"none";
+ $("dustActionText").style.display=stage===4?"":"none";
+ burstChunks.forEach(p=>{
+   if(!release)return;
+   const start=.13+p.row*.016+p.bag*.008;
+   const t=Math.max(0,Math.min(1,(progress-start)/.58));
+   if(t===0){p.el.setAttribute("opacity","0");return;}
+   // Filter cake first separates from the individual bag and accelerates downwards.
+   // At the sloping casing wall it changes direction to slide along the steel,
+   // losing speed as it settles at the bottom. Different bag faces hit different
+   // surfaces: outer faces encounter sloped walls, inner faces land on the floor.
+   const x0=p.sx;
+   const margin=8;
+   const floorY=505;
+   const onLeftSlope=x0<215, onRightSlope=x0>511;
+   const impactY=onLeftSlope?415+(x0-166)*102/49:
+                 onRightSlope?415+(560-x0)*102/49:floorY;
+   const impactX=x0;
+   const slideEndX=onLeftSlope?215+margin:onRightSlope?511-margin:x0;
+   const slideEndY=onLeftSlope||onRightSlope?floorY:floorY;
+   // Vertical drop and accelerated impact (different release height per flake).
+   const fallPart=.68+(p.row%3)*.012;
+   const slidePart=.90+(p.row%2)*.014;
+   let x,y;
+   if(t<fallPart){
+     const q=t/fallPart;
+     x=x0;
+     y=p.sy+(impactY-p.sy)*q*q;
+   }else if(t<slidePart){
+     const q=(t-fallPart)/(slidePart-fallPart);
+     const u=1-Math.pow(1-q,1.55);
+     x=impactX+(slideEndX-impactX)*u;
+     y=impactY+(slideEndY-impactY)*u;
+   }else{
+     const q=(t-slidePart)/(1-slidePart);
+     const drift=(p.index%3-1)*3.5;
+     x=slideEndX+drift*q;
+     y=floorY-2*Math.sin(q*Math.PI)*(p.index%2);
+   }
+   // Clamp the grain centre inside the actual hopper walls with a small gap.
+   const leftEdge=y<=415?166:166+(y-415)*49/102;
+   const rightEdge=y<=415?560:560-(y-415)*49/102;
+   x=Math.max(leftEdge+margin,Math.min(rightEdge-margin,x));
+   y=Math.min(floorY,Math.max(p.sy,y));
+   const angle=(p.side===0?-1:1)*(4+19*t)+(p.index%3)*5*t;
+   p.el.setAttribute("transform","translate("+x.toFixed(1)+" "+y.toFixed(1)+") rotate("+angle.toFixed(1)+")");
+   p.el.setAttribute("opacity",String(t>=.995?.05:t>.92?1-(t-.92)*6:1));
+ });
+ const pileLevel=stage<4?0:stage===4?Math.max(0,Math.min(1,(f-.34)*2.1)):stage===5?1:stage===6?1-.70*f:0;
+ // At step 7, ash visibly shifts down hopper slopes to the bottom outlet.
+ const flowOn=stage===5||stage===6;
+ $("hopperSlides").style.display=flowOn?"":"none";
+ $("hopperFlow").style.display=flowOn?"":"none";
+ if(flowOn){
+   const leftOffset=stage===5?Math.min(1,f*.65):Math.min(1,.65+f*.35);
+   $("slideLeft").setAttribute("transform","translate("+(leftOffset*105).toFixed(1)+" "+(leftOffset*40).toFixed(1)+")");
+   $("slideRight").setAttribute("transform","translate("+(-leftOffset*105).toFixed(1)+" "+(leftOffset*40).toFixed(1)+")");
+   document.querySelectorAll("[data-hopper-grain]").forEach((grain,n)=>{
+     const u=((stage===5?f*.9:f*1.7)+n/8)%1;
+     const inletX=340+(n%4)*14;
+     const x=inletX+(363-inletX)*Math.min(1,u*2);
+     const y=480+u*85;
+     grain.setAttribute("cx",x.toFixed(1));
+     grain.setAttribute("cy",y.toFixed(1));
+     grain.setAttribute("opacity",String(u>.92?.4:1));
+   });
+ }
+ $("dustPileShape").setAttribute("d",stage===4||stage===5?"M"+(205-pileLevel*25)+" 499 Q270 "+(499-pileLevel*36)+" "+(320+pileLevel*25)+" 499Z":"M"+(306-pileLevel*13)+" 499 Q363 "+(499-pileLevel*37)+" "+(420+pileLevel*13)+" 499Z");
+}
+
+function render(force){let i=Math.min(6,Math.floor(time/4)),p=phases[i],f=(time%4)/4;
+if(i!==current||force){choose(p[7]);current=i}
+$("phasetitle").textContent=(i+1)+"．"+p[0];$("phasedesc").textContent=p[1];$("watch").textContent=p[2];$("stepno").textContent="STEP "+(i+1)+" / 7";
+let dp=p[3];if(i===1)dp=.8+.1*f;if(i===2)dp=.9+.6*f;if(i===5)dp=1.3-.25*f;if(i===6)dp=1.05-.23*f;
+const thresholdReached=dp>=1.40;const alarmLatched=(i===3||i===4);
+$("dpPanel").classList.toggle("dp-warning",thresholdReached||alarmLatched);
+$("dpFill").style.width=Math.min(100,dp/2*100)+"%";
+$("dpFill").style.background=thresholdReached||alarmLatched?"#d62d28":dp>=1.2?"#e79d34":"#12a886";
+$("dpAlarm").textContent=thresholdReached ? "● 逆洗設定差圧に到達 → 逆洗要求" : alarmLatched ? "● 逆洗動作中（上限到達後）" : dp>=1.2 ? "注意：差圧上昇中" : "正常：差圧は設定値未満";
+$("dpHighZone").setAttribute("opacity",thresholdReached||alarmLatched?"0.18":"0");
+$("dpHighZone").setAttribute("class",thresholdReached||alarmLatched?"dp-alert-pulse":"");
+$("dpHighLabel").style.display=thresholdReached||alarmLatched?"":"none";
+$("dp").textContent=dp.toFixed(2)+" kPa";$("valve").textContent=p[4];$("cake").textContent=p[5];
+$("dpLive").textContent=dp.toFixed(2)+" kPa";
+$("valveLive").textContent=p[4];$("cakeLive").textContent=p[5];
+$("cakeLive").style.color=(thresholdReached||alarmLatched)?"#bd1c16":"";
+$("cake").style.color=(thresholdReached||alarmLatched)?"#bd1c16":"";
+
+$("dpLiveAlarm").textContent=thresholdReached?"上限到達・逆洗要求":alarmLatched?"逆洗動作中":dp>=1.2?"差圧上昇中":"正常";
+$("dpLiveFill").style.width=Math.min(100,dp/2*100)+"%";
+$("dpLiveFill").style.background=thresholdReached||alarmLatched?"#d62d28":dp>=1.2?"#e79d34":"#12a886";
+$("diagramPanel").querySelector(".diagram-dashboard").classList.toggle("high-dp",thresholdReached||alarmLatched);
+$("clock").textContent=time.toFixed(1)+" 秒 / 28.0 秒";$("seek").value=Math.floor(time*10);
+$("play").textContent=playing?"❚❚ 一時停止":"▶ 再生";document.body.classList.toggle("paused",!playing);
+let r=$("focus");["x","y","width","height"].forEach((a,j)=>r.setAttribute(a,p[6][j]));
+$("rotaryDischarge").style.display=i===6?"":"none";$("jet").style.display=i===4?"":"none";$("fallgroup").style.display=i===5?"":"none";$("peelingAsh").style.display="none";$("hopperAsh").style.display=i===5?"":"none";
+$("solenoid").setAttribute("fill",i===3||i===4?"#f2b854":"#62768b");$("pulseValve").setAttribute("fill",i===4?"#a975d0":"#4e5269");
+$("signal").setAttribute("stroke",thresholdReached||alarmLatched?"#ff5d53":i===3?"#ffd078":"#688295");$("signal").setAttribute("class",i===3?"glow":"");
+bg.querySelectorAll("[data-bag]").forEach((g,j)=>{
+ g.setAttribute("class",i===4?"bag-pulse":"");
+ let opacity=i===0?.10:i===1?.12+.65*f:i===2?.77+.17*f:i===3?.94:i===4?Math.max(.10,.94-3.3*f):.12;
+ g.querySelector(".cake").setAttribute("stroke-width",String((2.5+opacity*3)*2/3));
+ g.querySelector(".cake").setAttribute("opacity",String(opacity));
+});
+updateDustBuildup(i,f);
+positionParticles();document.querySelectorAll("#steps button").forEach((b,j)=>b.classList.toggle("active",i===j))
+}
+$("play").onclick=()=>{playing=!playing;last=0;render(false)};$("next").onclick=()=>{time=((Math.floor(time/4)+1)%7)*4;if(Math.floor(time/4)===4)time+=1.7;playing=false;render(true)};$("reset").onclick=()=>{time=0;playing=false;render(true)};$("speed").onclick=()=>{speed=speed===1?1.5:speed===1.5?.5:1;$("speed").textContent="速度 ×"+speed};
+$("seek").oninput=e=>{time=Number(e.target.value)/10;playing=false;render(true)};
+function tick(ts){if(playing&&last){const dt=Math.min((ts-last)/1000,.1);time+=dt*speed;particleClock+=dt*speed;if(time>=28)time=0;render(false)}last=ts;requestAnimationFrame(tick)}
+
+const viewModes={
+ all:{box:"0 0 940 570",caption:"全体：排ガス入口からろ過・逆洗・出口まで表示しています。"},
+ bags:{box:"155 90 415 450",caption:"ろ布拡大：ダスト層の成長、パルスジェット、塊の落下を拡大表示。"},
+ pressure:{box:"0 0 560 312",caption:"差圧制御拡大：差圧計表示と逆洗制御盤・電磁弁の作動を確認。"}
+};
+let activeView="all";
+function setView(mode){
+ const entry=viewModes[mode];if(!entry)return;
+ activeView=mode;
+ $("scene").setAttribute("viewBox",entry.box);
+ $("viewCaption").textContent=entry.caption;
+ document.querySelectorAll("[data-view]").forEach(b=>{
+   const selected=b.dataset.view===mode;
+   b.classList.toggle("active",selected);
+   b.setAttribute("aria-pressed",String(selected));
+ });
+}
+document.querySelectorAll("[data-view]").forEach(b=>b.addEventListener("click",()=>setView(b.dataset.view)));
+$("toggleLabels").addEventListener("click",()=>{
+ const hidden=$("scene").classList.toggle("hide-labels");
+ $("toggleLabels").textContent=hidden?"機器名を表示":"機器名を隠す";
+ $("toggleLabels").setAttribute("aria-pressed",String(hidden));
+});
+$("expandDiagram").addEventListener("click",()=>{
+ const expanded=$("diagramPanel").classList.toggle("diagram-expanded");
+ document.body.classList.toggle("diagram-open",expanded);
+ $("expandDiagram").textContent=expanded?"× 拡大を終了":"⛶ 画面拡大";
+ $("expandDiagram").setAttribute("aria-pressed",String(expanded));
+});
+setView("all");
+
+alignPulseToBags();$("runtime").textContent="操作プログラム：起動済み（v54）";$("runtime").style.color="#087c55";render(true);requestAnimationFrame(tick);
+} catch(e){const p=document.getElementById("runtime");if(p){p.textContent="動作エラー："+e.message;p.style.color="#b42318"}console.error(e)}
+})();
+</script></body></html>
